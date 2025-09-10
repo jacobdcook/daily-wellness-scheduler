@@ -808,6 +808,7 @@ class WellnessSchedulerApp:
         canvas = tk.Canvas(list_frame)
         scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=canvas.yview)
         scrollable_frame = ttk.Frame(canvas)
+        self.scrollable_frame = scrollable_frame  # Store reference for toggle
         
         scrollable_frame.bind(
             "<Configure>",
@@ -920,8 +921,24 @@ class WellnessSchedulerApp:
     
     def _toggle_current_schedule(self, checkbox, var):
         """Toggle display of current schedule items"""
-        # This will be implemented to show/hide the current items
-        pass
+        if var.get():
+            # Show current items - reload them
+            self.custom_items = []
+            self._load_existing_schedule()
+            # Clear existing frames and recreate
+            for frame in self.item_frames:
+                frame.destroy()
+            self.item_frames.clear()
+            # Recreate frames for all items
+            if hasattr(self, 'scrollable_frame'):
+                for i, (name, time, dose) in enumerate(self.custom_items):
+                    self._create_item_frame(self.scrollable_frame, name, time, dose, i)
+        else:
+            # Hide current items - clear them
+            self.custom_items = []
+            for frame in self.item_frames:
+                frame.destroy()
+            self.item_frames.clear()
     
     def _create_item_frame(self, parent, name, time, dose, index):
         """Create an item frame with plus/minus buttons"""
