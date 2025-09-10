@@ -777,7 +777,7 @@ class WellnessSchedulerApp:
         """Open a window to create a custom schedule"""
         custom_window = tk.Toplevel(self.root)
         custom_window.title("Create Custom Schedule")
-        custom_window.geometry("600x500")
+        custom_window.geometry("700x600")
         custom_window.transient(self.root)
         custom_window.grab_set()
         
@@ -786,8 +786,19 @@ class WellnessSchedulerApp:
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         # Instructions
-        ttk.Label(main_frame, text="Add your custom supplements and tasks:", 
+        ttk.Label(main_frame, text="Create or edit your daily schedule:", 
                  font=("TkDefaultFont", 12, "bold")).pack(anchor=tk.W, pady=(0, 10))
+        
+        # Load existing schedule
+        self.custom_items = []
+        self._load_existing_schedule()
+        
+        # Show current schedule toggle
+        show_current_var = tk.BooleanVar(value=len(self.custom_items) > 0)
+        show_current_cb = ttk.Checkbutton(main_frame, text="Show current schedule items", 
+                                         variable=show_current_var,
+                                         command=lambda: self._toggle_current_schedule(show_current_cb, show_current_var))
+        show_current_cb.pack(anchor=tk.W, pady=(0, 10))
         
         # List frame
         list_frame = ttk.Frame(main_frame)
@@ -809,8 +820,9 @@ class WellnessSchedulerApp:
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         
-        # Store items
+        # Store items and frames
         self.custom_items = []
+        self.item_frames = []
         
         # Add item frame
         add_frame = ttk.Frame(main_frame)
@@ -841,21 +853,9 @@ class WellnessSchedulerApp:
                 messagebox.showerror("Error", "Please enter a time")
                 return
             
-            # Add to list
-            item_frame = ttk.Frame(scrollable_frame)
-            item_frame.pack(fill=tk.X, pady=2)
-            
-            ttk.Label(item_frame, text=f"{time} - {name}", width=30).pack(side=tk.LEFT)
-            if dose:
-                ttk.Label(item_frame, text=f"({dose})", foreground="gray").pack(side=tk.LEFT, padx=(5, 0))
-            
-            def remove_item():
-                item_frame.destroy()
-                self.custom_items.remove((name, time, dose))
-            
-            ttk.Button(item_frame, text="Remove", command=remove_item).pack(side=tk.RIGHT)
-            
+            # Add to list and create frame
             self.custom_items.append((name, time, dose))
+            self._create_item_frame(scrollable_frame, name, time, dose, len(self.custom_items) - 1)
             
             # Clear fields
             name_var.set("")
@@ -866,6 +866,11 @@ class WellnessSchedulerApp:
             canvas.configure(scrollregion=canvas.bbox("all"))
         
         ttk.Button(add_frame, text="Add Item", command=add_item).grid(row=0, column=6)
+        
+        # Load existing items if any
+        if self.custom_items:
+            for i, (name, time, dose) in enumerate(self.custom_items):
+                self._create_item_frame(scrollable_frame, name, time, dose, i)
         
         # Buttons
         button_frame = ttk.Frame(main_frame)
@@ -886,6 +891,89 @@ class WellnessSchedulerApp:
         
         ttk.Button(button_frame, text="Create Schedule", command=create_schedule).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Button(button_frame, text="Cancel", command=custom_window.destroy).pack(side=tk.LEFT)
+    
+    def _load_existing_schedule(self):
+        """Load existing schedule items into custom_items"""
+        from datetime import datetime
+        
+        today = datetime.now().strftime("%Y-%m-%d")
+        if today in self.current_schedule:
+            for item in self.current_schedule[today]:
+                if hasattr(item, 'item'):
+                    # Dataclass format
+                    name = item.item.name
+                    scheduled_time = item.scheduled_time
+                    dose = item.item.dose
+                else:
+                    # Dictionary format
+                    name = item['item']['name']
+                    scheduled_time = item['scheduled_time']
+                    dose = item['item']['dose']
+                
+                # Convert to time string
+                if isinstance(scheduled_time, str):
+                    time_str = scheduled_time.split('T')[1][:5]  # Extract HH:MM
+                else:
+                    time_str = scheduled_time.strftime("%H:%M")
+                
+                self.custom_items.append((name, time_str, dose))
+    
+    def _toggle_current_schedule(self, checkbox, var):
+        """Toggle display of current schedule items"""
+        # This will be implemented to show/hide the current items
+        pass
+    
+    def _create_item_frame(self, parent, name, time, dose, index):
+        """Create an item frame with plus/minus buttons"""
+        item_frame = ttk.Frame(parent)
+        item_frame.pack(fill=tk.X, pady=2)
+        self.item_frames.append(item_frame)
+        
+        # Time and name
+        ttk.Label(item_frame, text=f"{time} - {name}", width=30).pack(side=tk.LEFT)
+        if dose:
+            ttk.Label(item_frame, text=f"({dose})", foreground="gray").pack(side=tk.LEFT, padx=(5, 0))
+        
+        # Plus button (add after this item)
+        def add_after():
+            self._add_item_after(index)
+        
+        ttk.Button(item_frame, text="+", command=add_after, width=3).pack(side=tk.RIGHT, padx=(2, 0))
+        
+        # Minus button (remove this item)
+        def remove_item():
+            item_frame.destroy()
+            self.custom_items.pop(index)
+            self.item_frames.pop(index)
+            # Recreate all frames to update indices
+            self._recreate_all_frames(parent)
+        
+        ttk.Button(item_frame, text="-", command=remove_item, width=3).pack(side=tk.RIGHT, padx=(2, 0))
+    
+    def _add_item_after(self, index):
+        """Add a new item after the specified index"""
+        # This would open a dialog to add a new item
+        # For now, just add a placeholder
+        new_name = f"New Item {len(self.custom_items) + 1}"
+        new_time = "12:00"
+        new_dose = ""
+        
+        # Insert after the specified index
+        self.custom_items.insert(index + 1, (new_name, new_time, new_dose))
+        
+        # Recreate all frames
+        self._recreate_all_frames(self.item_frames[0].master)
+    
+    def _recreate_all_frames(self, parent):
+        """Recreate all item frames with updated indices"""
+        # Clear existing frames
+        for frame in self.item_frames:
+            frame.destroy()
+        self.item_frames.clear()
+        
+        # Recreate all frames
+        for i, (name, time, dose) in enumerate(self.custom_items):
+            self._create_item_frame(parent, name, time, dose, i)
     
     def _generate_custom_schedule(self):
         """Generate a schedule from custom items"""
