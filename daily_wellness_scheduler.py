@@ -1229,7 +1229,7 @@ class WellnessSchedulerApp:
             print(f"Error saving progress: {e}")
     
     def _save_progress(self):
-        """Save current progress to file with confirmation"""
+        """Save current progress and settings to file with confirmation"""
         try:
             import os
             from datetime import datetime
@@ -1246,12 +1246,15 @@ class WellnessSchedulerApp:
             # Update today's progress
             progress_data[today] = self.item_states.copy()
             
-            # Save to file
+            # Save progress to file
             with open(self.progress_file, 'w') as f:
                 json.dump(progress_data, f, indent=2)
             
+            # Also save settings
+            self._save_settings()
+            
             # Show success message
-            messagebox.showinfo("Success", "Progress saved successfully!")
+            messagebox.showinfo("Success", "Progress and settings saved successfully!")
                 
         except Exception as e:
             print(f"Error saving progress: {e}")
