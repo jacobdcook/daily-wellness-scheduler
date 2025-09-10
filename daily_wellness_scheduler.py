@@ -496,6 +496,10 @@ class WellnessSchedulerApp:
         
         # Always generate a fresh daily plan on startup
         self._generate_schedule()
+        
+        # Check for missed items and start notification timer
+        self._check_missed_items()
+        self._start_notification_timer()
     
     def _configure_styles(self):
         """Configure custom ttk styles"""
@@ -1340,6 +1344,91 @@ class WellnessSchedulerApp:
                     
         except Exception as e:
             print(f"Error sending Pushbullet notification: {e}")
+    
+    def _check_missed_items(self):
+        """Check for missed items when app starts and send notifications"""
+        from datetime import datetime
+        
+        if not self.pushbullet_api_key:
+            return
+        
+        today = datetime.now().date().isoformat()
+        if today not in self.current_schedule:
+            return
+        
+        current_time = datetime.now()
+        missed_items = []
+        
+        for item in self.current_schedule[today]:
+            # Handle both dataclass objects and dictionaries
+            if hasattr(item, 'scheduled_time'):
+                scheduled_time = item.scheduled_time
+                item_name = item.item.name
+                item_dose = item.item.dose
+            else:
+                scheduled_time = datetime.fromisoformat(item['scheduled_time'])
+                item_name = item['item']['name']
+                item_dose = item['item']['dose']
+            
+            # Check if item was scheduled for today and is past due
+            if scheduled_time.date() == current_time.date() and scheduled_time < current_time:
+                # Check if it's not already completed
+                item_id = f"{item_name}_{scheduled_time.strftime('%H%M')}"
+                if self.item_states.get(item_id, 0) != 2:  # Not completed
+                    missed_items.append((item_name, item_dose, scheduled_time))
+        
+        # Send notification for missed items
+        if missed_items:
+            title = "⚠️ Missed Supplements"
+            body = "You missed these supplements today:\n\n"
+            for name, dose, time in missed_items:
+                body += f"• {name} ({dose}) - was due at {time.strftime('%I:%M %p')}\n"
+            
+            self._send_pushbullet_notification(title, body)
+    
+    def _start_notification_timer(self):
+        """Start timer to check for upcoming supplements every minute"""
+        self._check_upcoming_supplements()
+        # Schedule next check in 60 seconds
+        self.root.after(60000, self._start_notification_timer)
+    
+    def _check_upcoming_supplements(self):
+        """Check if it's time for any supplements and send notifications"""
+        from datetime import datetime, timedelta
+        
+        if not self.pushbullet_api_key:
+            return
+        
+        today = datetime.now().date().isoformat()
+        if today not in self.current_schedule:
+            return
+        
+        current_time = datetime.now()
+        
+        for item in self.current_schedule[today]:
+            # Handle both dataclass objects and dictionaries
+            if hasattr(item, 'scheduled_time'):
+                scheduled_time = item.scheduled_time
+                item_name = item.item.name
+                item_dose = item.item.dose
+            else:
+                scheduled_time = datetime.fromisoformat(item['scheduled_time'])
+                item_name = item['item']['name']
+                item_dose = item['item']['dose']
+            
+            # Check if it's time for this supplement (within 1 minute)
+            time_diff = abs((scheduled_time - current_time).total_seconds())
+            if time_diff <= 60:  # Within 1 minute
+                # Check if not already completed
+                item_id = f"{item_name}_{scheduled_time.strftime('%H%M')}"
+                if self.item_states.get(item_id, 0) != 2:  # Not completed
+                    title = "💊 Time for Supplement!"
+                    body = f"It's time to take:\n\n{item_name}\nDose: {item_dose}\nTime: {scheduled_time.strftime('%I:%M %p')}"
+                    
+                    self._send_pushbullet_notification(title, body)
+                    
+                    # Mark as notified to avoid spam
+                    self.item_states[f"{item_id}_notified"] = True
     
     def _update_week_display(self):
         """Update week view display"""
