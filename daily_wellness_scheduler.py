@@ -471,6 +471,12 @@ class WellnessSchedulerApp:
         self.root.title("Daily Wellness Scheduler")
         self.root.geometry("1200x800")
         
+        # Set application icon
+        try:
+            self.root.iconbitmap("Daily_Wellness_Scheduler.ico")
+        except:
+            pass  # If icon file doesn't exist, just continue without it
+        
         # Configure custom styles
         self._configure_styles()
         
