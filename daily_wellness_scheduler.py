@@ -777,7 +777,7 @@ class WellnessSchedulerApp:
         """Open a window to create a custom schedule"""
         custom_window = tk.Toplevel(self.root)
         custom_window.title("Create Custom Schedule")
-        custom_window.geometry("700x600")
+        custom_window.geometry("900x700")
         custom_window.transient(self.root)
         custom_window.grab_set()
         
@@ -989,11 +989,11 @@ class WellnessSchedulerApp:
         self.item_frames.append(item_frame)
         
         # Time and name
-        ttk.Label(item_frame, text=f"{time} - {name}", width=25).pack(side=tk.LEFT)
+        ttk.Label(item_frame, text=f"{time} - {name}", width=20).pack(side=tk.LEFT)
         if dose:
             ttk.Label(item_frame, text=f"({dose})", foreground="blue").pack(side=tk.LEFT, padx=(5, 0))
         if notes:
-            ttk.Label(item_frame, text=f"- {notes}", foreground="gray").pack(side=tk.LEFT, padx=(5, 0))
+            ttk.Label(item_frame, text=f"- {notes}", foreground="gray", wraplength=200).pack(side=tk.LEFT, padx=(5, 0))
         
         # Plus button (add after this item)
         def add_after():
@@ -1600,6 +1600,9 @@ class WellnessSchedulerApp:
         
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+        
+        # Update progress after creating all items
+        self._update_progress()
     
     def _create_progress_header(self):
         """Create progress header with percentage and progress bar"""
