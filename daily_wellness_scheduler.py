@@ -485,11 +485,9 @@ class WellnessSchedulerApp:
         
         # Create GUI
         self._create_gui()
-        self._load_schedule()
         
-        # If no schedule exists, generate one automatically
-        if not self.current_schedule:
-            self._generate_schedule()
+        # Always generate a fresh daily plan on startup
+        self._generate_schedule()
     
     def _configure_styles(self):
         """Configure custom ttk styles"""
@@ -620,7 +618,7 @@ class WellnessSchedulerApp:
             ttk.Checkbutton(optional_frame, text=item.replace("_", " ").title(), variable=var).pack(anchor=tk.W)
         
         # Generate button
-        ttk.Button(settings_frame, text="Generate Daily Plan", command=self._generate_schedule).pack(pady=10)
+        ttk.Button(settings_frame, text="Refresh Today's Plan", command=self._generate_schedule).pack(pady=10)
     
     def _create_schedule_panel(self, parent):
         """Create the schedule display panel"""
