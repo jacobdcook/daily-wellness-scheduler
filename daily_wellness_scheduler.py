@@ -794,7 +794,7 @@ class WellnessSchedulerApp:
         self._load_existing_schedule()
         
         # Show current schedule toggle
-        show_current_var = tk.BooleanVar(value=len(self.custom_items) > 0)
+        show_current_var = tk.BooleanVar(value=False)  # Start unchecked
         show_current_cb = ttk.Checkbutton(main_frame, text="Show current schedule items", 
                                          variable=show_current_var,
                                          command=lambda: self._toggle_current_schedule(show_current_cb, show_current_var))
@@ -834,7 +834,7 @@ class WellnessSchedulerApp:
         ttk.Entry(add_frame, textvariable=name_var, width=20).grid(row=0, column=1, padx=(0, 10))
         
         ttk.Label(add_frame, text="Time:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
-        time_var = tk.StringVar(value="08:00")
+        time_var = tk.StringVar(value="8:00 AM")
         ttk.Entry(add_frame, textvariable=time_var, width=10).grid(row=0, column=3, padx=(0, 10))
         
         ttk.Label(add_frame, text="Dose:").grid(row=0, column=4, sticky=tk.W, padx=(0, 5))
@@ -911,11 +911,12 @@ class WellnessSchedulerApp:
                     scheduled_time = item['scheduled_time']
                     dose = item['item']['dose']
                 
-                # Convert to time string
+                # Convert to 12-hour time string
                 if isinstance(scheduled_time, str):
-                    time_str = scheduled_time.split('T')[1][:5]  # Extract HH:MM
+                    time_obj = datetime.strptime(scheduled_time.split('T')[1][:5], "%H:%M")
                 else:
-                    time_str = scheduled_time.strftime("%H:%M")
+                    time_obj = scheduled_time
+                time_str = time_obj.strftime("%I:%M %p").lstrip('0')  # Remove leading zero, add AM/PM
                 
                 self.custom_items.append((name, time_str, dose))
     
@@ -969,17 +970,67 @@ class WellnessSchedulerApp:
     
     def _add_item_after(self, index):
         """Add a new item after the specified index"""
-        # This would open a dialog to add a new item
-        # For now, just add a placeholder
-        new_name = f"New Item {len(self.custom_items) + 1}"
-        new_time = "12:00"
-        new_dose = ""
+        # Open a dialog to add a new item
+        self._open_add_item_dialog(index + 1)
+    
+    def _open_add_item_dialog(self, insert_index):
+        """Open a dialog to add a new item at the specified index"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Add New Item")
+        dialog.geometry("400x200")
+        dialog.transient(self.root)
+        dialog.grab_set()
         
-        # Insert after the specified index
-        self.custom_items.insert(index + 1, (new_name, new_time, new_dose))
+        # Center the dialog
+        dialog.geometry("+%d+%d" % (self.root.winfo_rootx() + 50, self.root.winfo_rooty() + 50))
         
-        # Recreate all frames
-        self._recreate_all_frames(self.item_frames[0].master)
+        main_frame = ttk.Frame(dialog, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Form fields
+        ttk.Label(main_frame, text="Name:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        name_var = tk.StringVar()
+        ttk.Entry(main_frame, textvariable=name_var, width=25).grid(row=0, column=1, pady=5, padx=(10, 0))
+        
+        ttk.Label(main_frame, text="Time:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        time_var = tk.StringVar(value="12:00 PM")
+        ttk.Entry(main_frame, textvariable=time_var, width=25).grid(row=1, column=1, pady=5, padx=(10, 0))
+        
+        ttk.Label(main_frame, text="Dose:").grid(row=2, column=0, sticky=tk.W, pady=5)
+        dose_var = tk.StringVar()
+        ttk.Entry(main_frame, textvariable=dose_var, width=25).grid(row=2, column=1, pady=5, padx=(10, 0))
+        
+        # Instructions
+        ttk.Label(main_frame, text="Example time: 9:00 AM, 2:30 PM, 11:45 PM", 
+                 font=("TkDefaultFont", 8), foreground="gray").grid(row=3, column=1, sticky=tk.W, pady=(0, 10))
+        
+        # Buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.grid(row=4, column=0, columnspan=2, pady=10)
+        
+        def save_item():
+            name = name_var.get().strip()
+            time = time_var.get().strip()
+            dose = dose_var.get().strip()
+            
+            if not name:
+                messagebox.showerror("Error", "Please enter a name")
+                return
+            
+            if not time:
+                messagebox.showerror("Error", "Please enter a time")
+                return
+            
+            # Insert at the specified index
+            self.custom_items.insert(insert_index, (name, time, dose))
+            
+            # Recreate all frames
+            self._recreate_all_frames(self.scrollable_frame)
+            
+            dialog.destroy()
+        
+        ttk.Button(button_frame, text="Save", command=save_item).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT)
     
     def _recreate_all_frames(self, parent):
         """Recreate all item frames with updated indices"""
@@ -1004,8 +1055,8 @@ class WellnessSchedulerApp:
         
         for name, time_str, dose in self.custom_items:
             try:
-                # Parse time
-                time_obj = datetime.strptime(time_str, "%H:%M").time()
+                # Parse 12-hour time format
+                time_obj = datetime.strptime(time_str, "%I:%M %p").time()
                 scheduled_time = datetime.combine(today, time_obj)
                 
                 # Create item
