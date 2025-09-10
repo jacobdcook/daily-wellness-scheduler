@@ -967,8 +967,14 @@ class WellnessSchedulerApp:
             self.item_frames.clear()
             # Recreate frames for all items
             if hasattr(self, 'scrollable_frame'):
-                for i, (name, time, dose) in enumerate(self.custom_items):
-                    self._create_item_frame(self.scrollable_frame, name, time, dose, i)
+                for i, item in enumerate(self.custom_items):
+                    if len(item) == 4:
+                        name, time, dose, notes = item
+                    else:
+                        # Handle old 3-tuple format
+                        name, time, dose = item
+                        notes = ""
+                    self._create_item_frame(self.scrollable_frame, name, time, dose, notes, i)
         else:
             # Hide current items - clear them
             self.custom_items = []
