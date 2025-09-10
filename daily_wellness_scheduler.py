@@ -654,6 +654,8 @@ class WellnessSchedulerApp:
         # Generate button
         ttk.Button(settings_frame, text="Refresh Today's Plan", command=self._generate_schedule).pack(pady=5)
         
+        ttk.Button(settings_frame, text="Save Settings", command=self._save_settings_only).pack(pady=5)
+        
         ttk.Button(settings_frame, text="Regenerate Schedule", command=self._regenerate_schedule).pack(pady=5)
     
     def _create_schedule_panel(self, parent):
@@ -753,6 +755,21 @@ class WellnessSchedulerApp:
             import traceback
             traceback.print_exc()
             messagebox.showerror("Error", f"Failed to regenerate schedule: {e}")
+    
+    def _save_settings_only(self):
+        """Save only the settings without regenerating schedule"""
+        try:
+            # Update settings from GUI
+            self._update_settings_from_gui()
+            
+            # Save settings to file
+            self._save_settings()
+            
+            messagebox.showinfo("Success", "Settings saved successfully!")
+            
+        except Exception as e:
+            print(f"Error saving settings: {e}")
+            messagebox.showerror("Error", f"Failed to save settings: {e}")
     
     def _generate_simple_daily_schedule(self):
         """Generate a simple daily schedule with all supplements"""
