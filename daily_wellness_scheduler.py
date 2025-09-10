@@ -1373,7 +1373,8 @@ class WellnessSchedulerApp:
             # Check if item was scheduled for today and is past due
             if scheduled_time.date() == current_time.date() and scheduled_time < current_time:
                 # Check if it's not already completed
-                item_id = f"{item_name}_{scheduled_time.strftime('%H%M')}"
+                # Use the same ID format as in _update_today_display
+                item_id = f"{item_name}_{scheduled_time.strftime('%I:%M %p').replace(':', '')}"
                 if self.item_states.get(item_id, 0) != 2:  # Not completed
                     missed_items.append((item_name, item_dose, scheduled_time))
         
@@ -1420,7 +1421,8 @@ class WellnessSchedulerApp:
             time_diff = abs((scheduled_time - current_time).total_seconds())
             if time_diff <= 60:  # Within 1 minute
                 # Check if not already completed
-                item_id = f"{item_name}_{scheduled_time.strftime('%H%M')}"
+                # Use the same ID format as in _update_today_display
+                item_id = f"{item_name}_{scheduled_time.strftime('%I:%M %p').replace(':', '')}"
                 if self.item_states.get(item_id, 0) != 2:  # Not completed
                     title = "💊 Time for Supplement!"
                     body = f"It's time to take:\n\n{item_name}\nDose: {item_dose}\nTime: {scheduled_time.strftime('%I:%M %p')}"
