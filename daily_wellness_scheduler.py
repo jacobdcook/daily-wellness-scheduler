@@ -856,12 +856,17 @@ class WellnessSchedulerApp:
         dose_var = tk.StringVar()
         ttk.Entry(add_frame, textvariable=dose_var, width=15).grid(row=0, column=5, padx=(0, 10))
         
+        ttk.Label(add_frame, text="Notes:").grid(row=0, column=6, sticky=tk.W, padx=(0, 5))
+        notes_var = tk.StringVar()
+        ttk.Entry(add_frame, textvariable=notes_var, width=15).grid(row=0, column=7, padx=(0, 10))
+        
         def add_item():
             name = name_var.get().strip()
             hour = main_hour_var.get().strip()
             minute = main_minute_var.get().strip()
             ampm = main_ampm_var.get()
             dose = dose_var.get().strip()
+            notes = notes_var.get().strip()
             
             if not name:
                 messagebox.showerror("Error", "Please enter a name")
@@ -874,13 +879,14 @@ class WellnessSchedulerApp:
             # Combine time
             time = f"{hour}:{minute.zfill(2)} {ampm}"
             
-            # Add to list and create frame
-            self.custom_items.append((name, time, dose))
-            self._create_item_frame(scrollable_frame, name, time, dose, len(self.custom_items) - 1)
+            # Add to list and create frame (now with notes)
+            self.custom_items.append((name, time, dose, notes))
+            self._create_item_frame(scrollable_frame, name, time, dose, notes, len(self.custom_items) - 1)
             
             # Clear fields
             name_var.set("")
             dose_var.set("")
+            notes_var.set("")
             main_hour_var.set("8")
             main_minute_var.set("00")
             main_ampm_var.set("AM")
@@ -941,7 +947,13 @@ class WellnessSchedulerApp:
                     time_obj = scheduled_time
                 time_str = time_obj.strftime("%I:%M %p").lstrip('0')  # Remove leading zero, add AM/PM
                 
-                self.custom_items.append((name, time_str, dose))
+                # Get notes if available
+                if hasattr(item, 'item'):
+                    notes = item.item.notes
+                else:
+                    notes = item['item'].get('notes', '')
+                
+                self.custom_items.append((name, time_str, dose, notes))
     
     def _toggle_current_schedule(self, checkbox, var):
         """Toggle display of current schedule items"""
@@ -964,16 +976,18 @@ class WellnessSchedulerApp:
                 frame.destroy()
             self.item_frames.clear()
     
-    def _create_item_frame(self, parent, name, time, dose, index):
+    def _create_item_frame(self, parent, name, time, dose, notes, index):
         """Create an item frame with plus/minus buttons"""
         item_frame = ttk.Frame(parent)
         item_frame.pack(fill=tk.X, pady=2)
         self.item_frames.append(item_frame)
         
         # Time and name
-        ttk.Label(item_frame, text=f"{time} - {name}", width=30).pack(side=tk.LEFT)
+        ttk.Label(item_frame, text=f"{time} - {name}", width=25).pack(side=tk.LEFT)
         if dose:
-            ttk.Label(item_frame, text=f"({dose})", foreground="gray").pack(side=tk.LEFT, padx=(5, 0))
+            ttk.Label(item_frame, text=f"({dose})", foreground="blue").pack(side=tk.LEFT, padx=(5, 0))
+        if notes:
+            ttk.Label(item_frame, text=f"- {notes}", foreground="gray").pack(side=tk.LEFT, padx=(5, 0))
         
         # Plus button (add after this item)
         def add_after():
@@ -1038,6 +1052,10 @@ class WellnessSchedulerApp:
         dose_var = tk.StringVar()
         ttk.Entry(main_frame, textvariable=dose_var, width=25).grid(row=2, column=1, pady=5, padx=(10, 0))
         
+        ttk.Label(main_frame, text="Notes:").grid(row=3, column=0, sticky=tk.W, pady=5)
+        notes_var = tk.StringVar()
+        ttk.Entry(main_frame, textvariable=notes_var, width=25).grid(row=3, column=1, pady=5, padx=(10, 0))
+        
         # Instructions
         ttk.Label(main_frame, text="Enter hour and minute, then click AM or PM", 
                  font=("TkDefaultFont", 8), foreground="gray").grid(row=3, column=1, sticky=tk.W, pady=(0, 10))
@@ -1052,6 +1070,7 @@ class WellnessSchedulerApp:
             minute = minute_var.get().strip()
             ampm = ampm_var.get()
             dose = dose_var.get().strip()
+            notes = notes_var.get().strip()
             
             if not name:
                 messagebox.showerror("Error", "Please enter a name")
@@ -1064,8 +1083,8 @@ class WellnessSchedulerApp:
             # Combine time
             time = f"{hour}:{minute.zfill(2)} {ampm}"
             
-            # Insert at the specified index
-            self.custom_items.insert(insert_index, (name, time, dose))
+            # Insert at the specified index (now with notes)
+            self.custom_items.insert(insert_index, (name, time, dose, notes))
             
             # Recreate all frames
             self._recreate_all_frames(self.scrollable_frame)
@@ -1083,8 +1102,14 @@ class WellnessSchedulerApp:
         self.item_frames.clear()
         
         # Recreate all frames
-        for i, (name, time, dose) in enumerate(self.custom_items):
-            self._create_item_frame(parent, name, time, dose, i)
+        for i, item in enumerate(self.custom_items):
+            if len(item) == 4:
+                name, time, dose, notes = item
+            else:
+                # Handle old 3-tuple format
+                name, time, dose = item
+                notes = ""
+            self._create_item_frame(parent, name, time, dose, notes, i)
     
     def _generate_custom_schedule(self):
         """Generate a schedule from custom items"""
@@ -1096,8 +1121,15 @@ class WellnessSchedulerApp:
         # Create custom schedule
         custom_schedule = []
         
-        for name, time_str, dose in self.custom_items:
+        for item_data in self.custom_items:
             try:
+                # Handle both 3-tuple and 4-tuple formats
+                if len(item_data) == 4:
+                    name, time_str, dose, notes = item_data
+                else:
+                    name, time_str, dose = item_data
+                    notes = ""
+                
                 # Parse 12-hour time format
                 time_obj = datetime.strptime(time_str, "%I:%M %p").time()
                 scheduled_time = datetime.combine(today, time_obj)
@@ -1108,7 +1140,7 @@ class WellnessSchedulerApp:
                         "name": name,
                         "dose": dose or "As needed",
                         "timing_rule": "custom",
-                        "notes": "Custom item",
+                        "notes": notes or "Custom item",
                         "window_minutes": 15,
                         "anchor": "custom",
                         "offset_minutes": 0,
