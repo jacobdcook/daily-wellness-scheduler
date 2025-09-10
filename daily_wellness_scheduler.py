@@ -483,12 +483,16 @@ class WellnessSchedulerApp:
         self.item_states = {}  # Track state of each item: 0=empty, 1=in_progress, 2=complete
         self.checkboxes = {}  # Store checkbox widgets for persistence
         self.progress_file = ".local_private/progress.json"  # File to save progress
+        self.pushbullet_api_key = None  # Pushbullet API key for phone notifications
         
         # Create GUI
         self._create_gui()
         
         # Load today's progress
         self._load_today_progress()
+        
+        # Load Pushbullet API key
+        self._load_pushbullet_key()
         
         # Always generate a fresh daily plan on startup
         self._generate_schedule()
@@ -620,6 +624,20 @@ class WellnessSchedulerApp:
             var = tk.BooleanVar(value=enabled)
             self.optional_vars[item] = var
             ttk.Checkbutton(optional_frame, text=item.replace("_", " ").title(), variable=var).pack(anchor=tk.W)
+        
+        # Pushbullet API Key
+        pushbullet_frame = ttk.LabelFrame(settings_frame, text="Phone Notifications (Optional)", padding="5")
+        pushbullet_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Label(pushbullet_frame, text="Pushbullet API Key:").pack(anchor=tk.W)
+        self.pushbullet_var = tk.StringVar(value=self.pushbullet_api_key or "")
+        pushbullet_entry = ttk.Entry(pushbullet_frame, textvariable=self.pushbullet_var, show="*", width=40)
+        pushbullet_entry.pack(fill=tk.X, pady=(2, 5))
+        
+        ttk.Label(pushbullet_frame, text="Get your API key at: https://www.pushbullet.com/", 
+                 font=("TkDefaultFont", 8), foreground="gray").pack(anchor=tk.W)
+        
+        ttk.Button(pushbullet_frame, text="Save API Key", command=self._save_pushbullet_key).pack(anchor=tk.W, pady=(5, 0))
         
         # Generate button
         ttk.Button(settings_frame, text="Refresh Today's Plan", command=self._generate_schedule).pack(pady=10)
@@ -1249,6 +1267,79 @@ class WellnessSchedulerApp:
             self.item_states = progress_data[today].copy()
         else:
             self.item_states = {}
+    
+    def _save_pushbullet_key(self):
+        """Save Pushbullet API key to file"""
+        try:
+            import os
+            
+            # Get the API key from the entry field
+            api_key = self.pushbullet_var.get().strip()
+            
+            if not api_key:
+                messagebox.showwarning("Warning", "Please enter a Pushbullet API key")
+                return
+            
+            # Ensure directory exists
+            os.makedirs(".local_private", exist_ok=True)
+            
+            # Save to file
+            with open(".local_private/pushbullet_key.txt", 'w') as f:
+                f.write(api_key)
+            
+            # Update the instance variable
+            self.pushbullet_api_key = api_key
+            
+            messagebox.showinfo("Success", "Pushbullet API key saved successfully!")
+                
+        except Exception as e:
+            print(f"Error saving Pushbullet key: {e}")
+            messagebox.showerror("Error", f"Failed to save API key: {e}")
+    
+    def _load_pushbullet_key(self):
+        """Load Pushbullet API key from file"""
+        try:
+            if os.path.exists(".local_private/pushbullet_key.txt"):
+                with open(".local_private/pushbullet_key.txt", 'r') as f:
+                    self.pushbullet_api_key = f.read().strip()
+        except Exception as e:
+            print(f"Error loading Pushbullet key: {e}")
+            self.pushbullet_api_key = None
+    
+    def _send_pushbullet_notification(self, title, body):
+        """Send notification via Pushbullet"""
+        if not self.pushbullet_api_key:
+            return
+        
+        try:
+            import urllib.request
+            import urllib.parse
+            import json
+            
+            url = "https://api.pushbullet.com/v2/pushes"
+            data = {
+                "type": "note",
+                "title": title,
+                "body": body
+            }
+            
+            headers = {
+                "Access-Token": self.pushbullet_api_key,
+                "Content-Type": "application/json"
+            }
+            
+            req = urllib.request.Request(url, 
+                                       data=json.dumps(data).encode('utf-8'),
+                                       headers=headers)
+            
+            with urllib.request.urlopen(req) as response:
+                if response.status == 200:
+                    print(f"Pushbullet notification sent: {title}")
+                else:
+                    print(f"Failed to send Pushbullet notification: {response.status}")
+                    
+        except Exception as e:
+            print(f"Error sending Pushbullet notification: {e}")
     
     def _update_week_display(self):
         """Update week view display"""
