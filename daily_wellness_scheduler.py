@@ -634,9 +634,18 @@ class WellnessSchedulerApp:
         pushbullet_frame.pack(fill=tk.X, pady=(0, 10))
         
         ttk.Label(pushbullet_frame, text="Pushbullet API Key:").pack(anchor=tk.W)
-        self.pushbullet_var = tk.StringVar(value=self.pushbullet_api_key or "")
+        self.pushbullet_var = tk.StringVar(value="••••••••••••••••••••••••••••••••••••••••" if self.pushbullet_api_key else "")
         pushbullet_entry = ttk.Entry(pushbullet_frame, textvariable=self.pushbullet_var, show="*", width=40)
         pushbullet_entry.pack(fill=tk.X, pady=(2, 5))
+        
+        # Show status
+        if self.pushbullet_api_key:
+            status_label = ttk.Label(pushbullet_frame, text="✓ API key saved - notifications enabled", 
+                                   font=("TkDefaultFont", 8), foreground="green")
+        else:
+            status_label = ttk.Label(pushbullet_frame, text="No API key - notifications disabled", 
+                                   font=("TkDefaultFont", 8), foreground="gray")
+        status_label.pack(anchor=tk.W)
         
         ttk.Label(pushbullet_frame, text="Get your API key at: https://www.pushbullet.com/", 
                  font=("TkDefaultFont", 8), foreground="gray").pack(anchor=tk.W)
@@ -1293,6 +1302,9 @@ class WellnessSchedulerApp:
             
             # Update the instance variable
             self.pushbullet_api_key = api_key
+            
+            # Update the display
+            self.pushbullet_var.set("••••••••••••••••••••••••••••••••••••••••")
             
             messagebox.showinfo("Success", "Pushbullet API key saved successfully!")
                 
