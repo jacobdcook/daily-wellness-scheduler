@@ -824,7 +824,10 @@ class WellnessSchedulerApp:
         # Bind mouse wheel scrolling
         def _on_mousewheel(event):
             canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Bind to canvas and scrollable frame
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
         
         # Store items and frames
         self.custom_items = []
@@ -1609,7 +1612,10 @@ class WellnessSchedulerApp:
         # Bind mouse wheel scrolling
         def _on_mousewheel(event):
             canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Bind to canvas and scrollable frame
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
         
         # Update progress after creating all items
         self._update_progress()
@@ -2040,7 +2046,10 @@ class WellnessSchedulerApp:
         # Bind mouse wheel scrolling
         def _on_mousewheel(event):
             canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Bind to canvas and scrollable frame
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
     
     def _update_sixweek_display(self):
         """Update 6-week view display"""
@@ -2142,7 +2151,10 @@ class WellnessSchedulerApp:
         # Bind mouse wheel scrolling
         def _on_mousewheel(event):
             canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Bind to canvas and scrollable frame
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
     
     def _toggle_week_content(self, content_frame, var):
         """Toggle visibility of week content"""
