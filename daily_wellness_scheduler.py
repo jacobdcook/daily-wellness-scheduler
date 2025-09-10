@@ -656,6 +656,8 @@ class WellnessSchedulerApp:
         
         ttk.Button(settings_frame, text="Save Settings", command=self._save_settings_only).pack(pady=5)
         
+        ttk.Button(settings_frame, text="Create Custom Schedule", command=self._create_custom_schedule).pack(pady=5)
+        
         ttk.Button(settings_frame, text="Regenerate Schedule", command=self._regenerate_schedule).pack(pady=5)
     
     def _create_schedule_panel(self, parent):
@@ -770,6 +772,175 @@ class WellnessSchedulerApp:
         except Exception as e:
             print(f"Error saving settings: {e}")
             messagebox.showerror("Error", f"Failed to save settings: {e}")
+    
+    def _create_custom_schedule(self):
+        """Open a window to create a custom schedule"""
+        custom_window = tk.Toplevel(self.root)
+        custom_window.title("Create Custom Schedule")
+        custom_window.geometry("600x500")
+        custom_window.transient(self.root)
+        custom_window.grab_set()
+        
+        # Main frame
+        main_frame = ttk.Frame(custom_window, padding="10")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Instructions
+        ttk.Label(main_frame, text="Add your custom supplements and tasks:", 
+                 font=("TkDefaultFont", 12, "bold")).pack(anchor=tk.W, pady=(0, 10))
+        
+        # List frame
+        list_frame = ttk.Frame(main_frame)
+        list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        
+        # Scrollable list
+        canvas = tk.Canvas(list_frame)
+        scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Store items
+        self.custom_items = []
+        
+        # Add item frame
+        add_frame = ttk.Frame(main_frame)
+        add_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Label(add_frame, text="Name:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        name_var = tk.StringVar()
+        ttk.Entry(add_frame, textvariable=name_var, width=20).grid(row=0, column=1, padx=(0, 10))
+        
+        ttk.Label(add_frame, text="Time:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
+        time_var = tk.StringVar(value="08:00")
+        ttk.Entry(add_frame, textvariable=time_var, width=10).grid(row=0, column=3, padx=(0, 10))
+        
+        ttk.Label(add_frame, text="Dose:").grid(row=0, column=4, sticky=tk.W, padx=(0, 5))
+        dose_var = tk.StringVar()
+        ttk.Entry(add_frame, textvariable=dose_var, width=15).grid(row=0, column=5, padx=(0, 10))
+        
+        def add_item():
+            name = name_var.get().strip()
+            time = time_var.get().strip()
+            dose = dose_var.get().strip()
+            
+            if not name:
+                messagebox.showerror("Error", "Please enter a name")
+                return
+            
+            if not time:
+                messagebox.showerror("Error", "Please enter a time")
+                return
+            
+            # Add to list
+            item_frame = ttk.Frame(scrollable_frame)
+            item_frame.pack(fill=tk.X, pady=2)
+            
+            ttk.Label(item_frame, text=f"{time} - {name}", width=30).pack(side=tk.LEFT)
+            if dose:
+                ttk.Label(item_frame, text=f"({dose})", foreground="gray").pack(side=tk.LEFT, padx=(5, 0))
+            
+            def remove_item():
+                item_frame.destroy()
+                self.custom_items.remove((name, time, dose))
+            
+            ttk.Button(item_frame, text="Remove", command=remove_item).pack(side=tk.RIGHT)
+            
+            self.custom_items.append((name, time, dose))
+            
+            # Clear fields
+            name_var.set("")
+            dose_var.set("")
+            
+            # Update scroll region
+            custom_window.update_idletasks()
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        
+        ttk.Button(add_frame, text="Add Item", command=add_item).grid(row=0, column=6)
+        
+        # Buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X)
+        
+        def create_schedule():
+            if not self.custom_items:
+                messagebox.showerror("Error", "Please add at least one item")
+                return
+            
+            try:
+                # Generate custom schedule
+                self._generate_custom_schedule()
+                custom_window.destroy()
+                messagebox.showinfo("Success", "Custom schedule created successfully!")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to create schedule: {e}")
+        
+        ttk.Button(button_frame, text="Create Schedule", command=create_schedule).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Cancel", command=custom_window.destroy).pack(side=tk.LEFT)
+    
+    def _generate_custom_schedule(self):
+        """Generate a schedule from custom items"""
+        from datetime import datetime, timedelta
+        
+        # Get today's date
+        today = datetime.now().date()
+        
+        # Create custom schedule
+        custom_schedule = []
+        
+        for name, time_str, dose in self.custom_items:
+            try:
+                # Parse time
+                time_obj = datetime.strptime(time_str, "%H:%M").time()
+                scheduled_time = datetime.combine(today, time_obj)
+                
+                # Create item
+                item = {
+                    "item": {
+                        "name": name,
+                        "dose": dose or "As needed",
+                        "timing_rule": "custom",
+                        "notes": "Custom item",
+                        "window_minutes": 15,
+                        "anchor": "custom",
+                        "offset_minutes": 0,
+                        "conflicts": [],
+                        "enabled": True,
+                        "optional": False
+                    },
+                    "scheduled_time": scheduled_time.isoformat(),
+                    "day_type": "light",
+                    "shifted": False,
+                    "shift_reason": ""
+                }
+                custom_schedule.append(item)
+                
+            except ValueError:
+                print(f"Invalid time format: {time_str}")
+                continue
+        
+        # Sort by time
+        custom_schedule.sort(key=lambda x: x["scheduled_time"])
+        
+        # Update current schedule
+        self.current_schedule = {today.isoformat(): custom_schedule}
+        
+        # Save to file
+        self._save_settings()
+        
+        # Update displays
+        self._update_today_display()
+        self._update_week_display()
+        self._update_sixweek_display()
     
     def _generate_simple_daily_schedule(self):
         """Generate a simple daily schedule with all supplements"""
