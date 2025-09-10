@@ -494,6 +494,9 @@ class WellnessSchedulerApp:
         # Load Pushbullet API key
         self._load_pushbullet_key()
         
+        # Update Pushbullet display after loading key
+        self._update_pushbullet_display()
+        
         # Always generate a fresh daily plan on startup
         self._generate_schedule()
         
@@ -639,13 +642,9 @@ class WellnessSchedulerApp:
         pushbullet_entry.pack(fill=tk.X, pady=(2, 5))
         
         # Show status
-        if self.pushbullet_api_key:
-            status_label = ttk.Label(pushbullet_frame, text="✓ API key saved - notifications enabled", 
-                                   font=("TkDefaultFont", 8), foreground="green")
-        else:
-            status_label = ttk.Label(pushbullet_frame, text="No API key - notifications disabled", 
-                                   font=("TkDefaultFont", 8), foreground="gray")
-        status_label.pack(anchor=tk.W)
+        self.pushbullet_status_label = ttk.Label(pushbullet_frame, text="", 
+                                               font=("TkDefaultFont", 8))
+        self.pushbullet_status_label.pack(anchor=tk.W)
         
         ttk.Label(pushbullet_frame, text="Get your API key at: https://www.pushbullet.com/", 
                  font=("TkDefaultFont", 8), foreground="gray").pack(anchor=tk.W)
@@ -1304,7 +1303,7 @@ class WellnessSchedulerApp:
             self.pushbullet_api_key = api_key
             
             # Update the display
-            self.pushbullet_var.set("••••••••••••••••••••••••••••••••••••••••")
+            self._update_pushbullet_display()
             
             messagebox.showinfo("Success", "Pushbullet API key saved successfully!")
                 
@@ -1321,6 +1320,20 @@ class WellnessSchedulerApp:
         except Exception as e:
             print(f"Error loading Pushbullet key: {e}")
             self.pushbullet_api_key = None
+    
+    def _update_pushbullet_display(self):
+        """Update the Pushbullet display based on loaded API key"""
+        if hasattr(self, 'pushbullet_var'):
+            if self.pushbullet_api_key:
+                self.pushbullet_var.set("••••••••••••••••••••••••••••••••••••••••")
+                if hasattr(self, 'pushbullet_status_label'):
+                    self.pushbullet_status_label.config(text="✓ API key saved - notifications enabled", 
+                                                       foreground="green")
+            else:
+                self.pushbullet_var.set("")
+                if hasattr(self, 'pushbullet_status_label'):
+                    self.pushbullet_status_label.config(text="No API key - notifications disabled", 
+                                                       foreground="gray")
     
     def _send_pushbullet_notification(self, title, body):
         """Send notification via Pushbullet"""
