@@ -63,9 +63,9 @@ class SupplementItem:
 
 @dataclass
 class UserSettings:
-    wake_time: str = "08:00"
-    bedtime: str = "00:00"
-    dinner_time: str = "19:30"
+    wake_time: str = "07:30"
+    bedtime: str = "22:00"
+    dinner_time: str = "18:30"
     breakfast_mode: str = "sometimes"  # usually, sometimes, skip
     breakfast_days: List[bool] = None  # 7 days starting Monday
     study_start: str = "09:30"
