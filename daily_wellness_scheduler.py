@@ -834,8 +834,23 @@ class WellnessSchedulerApp:
         ttk.Entry(add_frame, textvariable=name_var, width=20).grid(row=0, column=1, padx=(0, 10))
         
         ttk.Label(add_frame, text="Time:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
-        time_var = tk.StringVar(value="8:00 AM")
-        ttk.Entry(add_frame, textvariable=time_var, width=10).grid(row=0, column=3, padx=(0, 10))
+        
+        # Time input frame for main form
+        main_time_frame = ttk.Frame(add_frame)
+        main_time_frame.grid(row=0, column=3, padx=(0, 10))
+        
+        # Hour and minute entries
+        main_hour_var = tk.StringVar(value="8")
+        main_minute_var = tk.StringVar(value="00")
+        main_ampm_var = tk.StringVar(value="AM")
+        
+        ttk.Entry(main_time_frame, textvariable=main_hour_var, width=3).pack(side=tk.LEFT)
+        ttk.Label(main_time_frame, text=":").pack(side=tk.LEFT)
+        ttk.Entry(main_time_frame, textvariable=main_minute_var, width=3).pack(side=tk.LEFT, padx=(0, 5))
+        
+        # AM/PM buttons
+        ttk.Button(main_time_frame, text="AM", command=lambda: main_ampm_var.set("AM"), width=3).pack(side=tk.LEFT, padx=(0, 2))
+        ttk.Button(main_time_frame, text="PM", command=lambda: main_ampm_var.set("PM"), width=3).pack(side=tk.LEFT)
         
         ttk.Label(add_frame, text="Dose:").grid(row=0, column=4, sticky=tk.W, padx=(0, 5))
         dose_var = tk.StringVar()
@@ -843,16 +858,21 @@ class WellnessSchedulerApp:
         
         def add_item():
             name = name_var.get().strip()
-            time = time_var.get().strip()
+            hour = main_hour_var.get().strip()
+            minute = main_minute_var.get().strip()
+            ampm = main_ampm_var.get()
             dose = dose_var.get().strip()
             
             if not name:
                 messagebox.showerror("Error", "Please enter a name")
                 return
             
-            if not time:
-                messagebox.showerror("Error", "Please enter a time")
+            if not hour or not minute:
+                messagebox.showerror("Error", "Please enter hour and minute")
                 return
+            
+            # Combine time
+            time = f"{hour}:{minute.zfill(2)} {ampm}"
             
             # Add to list and create frame
             self.custom_items.append((name, time, dose))
@@ -861,6 +881,9 @@ class WellnessSchedulerApp:
             # Clear fields
             name_var.set("")
             dose_var.set("")
+            main_hour_var.set("8")
+            main_minute_var.set("00")
+            main_ampm_var.set("AM")
             
             # Update scroll region
             custom_window.update_idletasks()
@@ -993,15 +1016,30 @@ class WellnessSchedulerApp:
         ttk.Entry(main_frame, textvariable=name_var, width=25).grid(row=0, column=1, pady=5, padx=(10, 0))
         
         ttk.Label(main_frame, text="Time:").grid(row=1, column=0, sticky=tk.W, pady=5)
-        time_var = tk.StringVar(value="12:00 PM")
-        ttk.Entry(main_frame, textvariable=time_var, width=25).grid(row=1, column=1, pady=5, padx=(10, 0))
+        
+        # Time input frame
+        time_frame = ttk.Frame(main_frame)
+        time_frame.grid(row=1, column=1, pady=5, padx=(10, 0), sticky=tk.W)
+        
+        # Hour and minute entries
+        hour_var = tk.StringVar(value="12")
+        minute_var = tk.StringVar(value="00")
+        ampm_var = tk.StringVar(value="PM")
+        
+        ttk.Entry(time_frame, textvariable=hour_var, width=3).pack(side=tk.LEFT)
+        ttk.Label(time_frame, text=":").pack(side=tk.LEFT)
+        ttk.Entry(time_frame, textvariable=minute_var, width=3).pack(side=tk.LEFT, padx=(0, 5))
+        
+        # AM/PM buttons
+        ttk.Button(time_frame, text="AM", command=lambda: ampm_var.set("AM"), width=3).pack(side=tk.LEFT, padx=(0, 2))
+        ttk.Button(time_frame, text="PM", command=lambda: ampm_var.set("PM"), width=3).pack(side=tk.LEFT)
         
         ttk.Label(main_frame, text="Dose:").grid(row=2, column=0, sticky=tk.W, pady=5)
         dose_var = tk.StringVar()
         ttk.Entry(main_frame, textvariable=dose_var, width=25).grid(row=2, column=1, pady=5, padx=(10, 0))
         
         # Instructions
-        ttk.Label(main_frame, text="Example time: 9:00 AM, 2:30 PM, 11:45 PM", 
+        ttk.Label(main_frame, text="Enter hour and minute, then click AM or PM", 
                  font=("TkDefaultFont", 8), foreground="gray").grid(row=3, column=1, sticky=tk.W, pady=(0, 10))
         
         # Buttons
@@ -1010,16 +1048,21 @@ class WellnessSchedulerApp:
         
         def save_item():
             name = name_var.get().strip()
-            time = time_var.get().strip()
+            hour = hour_var.get().strip()
+            minute = minute_var.get().strip()
+            ampm = ampm_var.get()
             dose = dose_var.get().strip()
             
             if not name:
                 messagebox.showerror("Error", "Please enter a name")
                 return
             
-            if not time:
-                messagebox.showerror("Error", "Please enter a time")
+            if not hour or not minute:
+                messagebox.showerror("Error", "Please enter hour and minute")
                 return
+            
+            # Combine time
+            time = f"{hour}:{minute.zfill(2)} {ampm}"
             
             # Insert at the specified index
             self.custom_items.insert(insert_index, (name, time, dose))
