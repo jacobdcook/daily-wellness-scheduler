@@ -482,9 +482,13 @@ class WellnessSchedulerApp:
         # Initialize progress tracking
         self.item_states = {}  # Track state of each item: 0=empty, 1=in_progress, 2=complete
         self.checkboxes = {}  # Store checkbox widgets for persistence
+        self.progress_file = ".local_private/progress.json"  # File to save progress
         
         # Create GUI
         self._create_gui()
+        
+        # Load today's progress
+        self._load_today_progress()
         
         # Always generate a fresh daily plan on startup
         self._generate_schedule()
@@ -651,6 +655,7 @@ class WellnessSchedulerApp:
         
         ttk.Button(controls_frame, text="Export CSV", command=self._export_csv).pack(side=tk.LEFT, padx=(0, 5))
         ttk.Button(controls_frame, text="Export iCal", command=self._export_ical).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(controls_frame, text="Save Progress", command=self._save_progress).pack(side=tk.LEFT, padx=(0, 5))
         
         # Day type toggle
         self.day_type_var = tk.StringVar(value="Light Day")
@@ -984,11 +989,13 @@ class WellnessSchedulerApp:
         """Update today's schedule display"""
         from datetime import datetime
         
-        # Don't clear widgets - just update them
-        # Clear existing widgets except progress header and checkboxes
+        # Clear existing widgets except progress header
         for widget in self.today_frame.winfo_children():
-            if widget != self.progress_header_frame and not hasattr(widget, '_is_checkbox_container'):
+            if widget != self.progress_header_frame:
                 widget.destroy()
+        
+        # Clear checkbox references since widgets are being recreated
+        self.checkboxes.clear()
         
         # Reinitialize progress tracking for today's items
         self._initialize_today_progress()
@@ -1032,18 +1039,15 @@ class WellnessSchedulerApp:
                 item_dose = scheduled_item['item']['dose']
                 item_notes = scheduled_item['item']['notes']
             
-            # Interactive checkbox - create only if it doesn't exist
+            # Interactive checkbox - always create new since we cleared checkboxes
             item_id = f"{item_name}_{time_str.replace(':', '')}"
             
-            if item_id not in self.checkboxes:
-                checkbox = tk.Button(item_frame, text="☐", font=("Arial", 16), 
-                                   relief="flat", bd=0, width=2)
-                # Use a lambda that captures the current values
-                checkbox.config(command=lambda iid=item_id, cb=checkbox, frame=item_frame: self._toggle_item_state(iid, cb, frame))
-                checkbox.grid(row=0, column=0, padx=(0, 10))
-                self.checkboxes[item_id] = checkbox
-            else:
-                checkbox = self.checkboxes[item_id]
+            checkbox = tk.Button(item_frame, text="☐", font=("Arial", 16), 
+                               relief="flat", bd=0, width=2)
+            # Use a lambda that captures the current values
+            checkbox.config(command=lambda iid=item_id, cb=checkbox, frame=item_frame: self._toggle_item_state(iid, cb, frame))
+            checkbox.grid(row=0, column=0, padx=(0, 10))
+            self.checkboxes[item_id] = checkbox
             
             # Update checkbox appearance based on current state
             current_state = self.item_states.get(item_id, 0)
@@ -1129,6 +1133,9 @@ class WellnessSchedulerApp:
         
         # Update progress
         self._update_progress()
+        
+        # Save progress automatically
+        self._save_progress()
     
     def _update_progress(self):
         """Update progress percentage and bar"""
@@ -1165,6 +1172,58 @@ class WellnessSchedulerApp:
         
         # Color coding - just use the default progress bar style
         # (Background color doesn't work with ttk.Progressbar)
+    
+    def _save_progress(self):
+        """Save current progress to file"""
+        try:
+            import os
+            from datetime import datetime
+            
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(self.progress_file), exist_ok=True)
+            
+            # Get today's date
+            today = datetime.now().date().isoformat()
+            
+            # Load existing progress or create new
+            progress_data = self._load_progress_data()
+            
+            # Update today's progress
+            progress_data[today] = self.item_states.copy()
+            
+            # Save to file
+            with open(self.progress_file, 'w') as f:
+                json.dump(progress_data, f, indent=2)
+            
+            # Show success message
+            messagebox.showinfo("Success", "Progress saved successfully!")
+                
+        except Exception as e:
+            print(f"Error saving progress: {e}")
+            messagebox.showerror("Error", f"Failed to save progress: {e}")
+    
+    def _load_progress_data(self):
+        """Load progress data from file"""
+        try:
+            if os.path.exists(self.progress_file):
+                with open(self.progress_file, 'r') as f:
+                    return json.load(f)
+            return {}
+        except Exception as e:
+            print(f"Error loading progress: {e}")
+            return {}
+    
+    def _load_today_progress(self):
+        """Load today's progress from saved data"""
+        from datetime import datetime
+        
+        today = datetime.now().date().isoformat()
+        progress_data = self._load_progress_data()
+        
+        if today in progress_data:
+            self.item_states = progress_data[today].copy()
+        else:
+            self.item_states = {}
     
     def _update_week_display(self):
         """Update week view display"""
@@ -1375,13 +1434,30 @@ class WellnessSchedulerApp:
             
             for date_str, items in sorted(self.current_schedule.items()):
                 for item in items:
+                    # Handle both dataclass objects and dictionaries
+                    if hasattr(item, 'scheduled_time'):
+                        # Dataclass object
+                        time_str = item.scheduled_time.strftime("%H:%M")
+                        item_name = item.item.name
+                        item_dose = item.item.dose
+                        item_notes = item.item.notes
+                        day_type = item.day_type.value
+                    else:
+                        # Dictionary
+                        from datetime import datetime
+                        time_str = datetime.fromisoformat(item['scheduled_time']).strftime("%H:%M")
+                        item_name = item['item']['name']
+                        item_dose = item['item']['dose']
+                        item_notes = item['item']['notes']
+                        day_type = item['day_type']
+                    
                     writer.writerow([
                         date_str,
-                        item.scheduled_time.strftime("%H:%M"),
-                        item.item.name,
-                        item.item.dose,
-                        item.item.notes,
-                        item.day_type.value
+                        time_str,
+                        item_name,
+                        item_dose,
+                        item_notes,
+                        day_type
                     ])
     
     def _export_ical(self):
@@ -1401,6 +1477,8 @@ class WellnessSchedulerApp:
     
     def _write_ical(self, filename: str):
         """Write schedule to iCal file"""
+        from datetime import datetime, timedelta
+        
         with open(filename, 'w') as f:
             f.write("BEGIN:VCALENDAR\n")
             f.write("VERSION:2.0\n")
@@ -1408,15 +1486,29 @@ class WellnessSchedulerApp:
             
             for date_str, items in self.current_schedule.items():
                 for item in items:
+                    # Handle both dataclass objects and dictionaries
+                    if hasattr(item, 'scheduled_time'):
+                        # Dataclass object
+                        scheduled_time = item.scheduled_time
+                        item_name = item.item.name
+                        item_dose = item.item.dose
+                        item_notes = item.item.notes
+                    else:
+                        # Dictionary
+                        scheduled_time = datetime.fromisoformat(item['scheduled_time'])
+                        item_name = item['item']['name']
+                        item_dose = item['item']['dose']
+                        item_notes = item['item']['notes']
+                    
                     # Format datetime for iCal
-                    dt_start = item.scheduled_time.strftime("%Y%m%dT%H%M%S")
-                    dt_end = (item.scheduled_time + timedelta(minutes=15)).strftime("%Y%m%dT%H%M%S")
+                    dt_start = scheduled_time.strftime("%Y%m%dT%H%M%S")
+                    dt_end = (scheduled_time + timedelta(minutes=15)).strftime("%Y%m%dT%H%M%S")
                     
                     f.write("BEGIN:VEVENT\n")
                     f.write(f"DTSTART:{dt_start}\n")
                     f.write(f"DTEND:{dt_end}\n")
-                    f.write(f"SUMMARY:{item.item.name}\n")
-                    f.write(f"DESCRIPTION:{item.item.dose} - {item.item.notes}\n")
+                    f.write(f"SUMMARY:{item_name}\n")
+                    f.write(f"DESCRIPTION:{item_dose} - {item_notes}\n")
                     f.write("END:VEVENT\n")
             
             f.write("END:VCALENDAR\n")
