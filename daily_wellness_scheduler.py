@@ -712,11 +712,30 @@ class WellnessSchedulerApp:
     def _regenerate_schedule(self):
         """Regenerate schedule with current settings from GUI"""
         try:
+            print("=== REGENERATE SCHEDULE DEBUG ===")
+            print(f"Before update - Wake time: {self.settings.wake_time}")
+            print(f"Before update - Bedtime: {self.settings.bedtime}")
+            print(f"Before update - Dinner time: {self.settings.dinner_time}")
+            
             # Update settings from GUI
             self._update_settings_from_gui()
             
+            print(f"After update - Wake time: {self.settings.wake_time}")
+            print(f"After update - Bedtime: {self.settings.bedtime}")
+            print(f"After update - Dinner time: {self.settings.dinner_time}")
+            
             # Generate a fresh daily schedule with new settings
             self.current_schedule = self._generate_simple_daily_schedule()
+            
+            print("Generated schedule times:")
+            from datetime import datetime
+            today = datetime.now().strftime("%Y-%m-%d")
+            if today in self.current_schedule:
+                for item in self.current_schedule[today]:
+                    if hasattr(item, 'scheduled_time'):
+                        print(f"  {item.item.name}: {item.scheduled_time}")
+                    else:
+                        print(f"  {item['item']['name']}: {item['scheduled_time']}")
             
             # Save to file
             self._save_settings()
@@ -726,10 +745,13 @@ class WellnessSchedulerApp:
             self._update_week_display()
             self._update_sixweek_display()
             
+            print("=== END REGENERATE DEBUG ===")
             messagebox.showinfo("Success", "Schedule regenerated with new settings!")
             
         except Exception as e:
             print(f"Error regenerating schedule: {e}")
+            import traceback
+            traceback.print_exc()
             messagebox.showerror("Error", f"Failed to regenerate schedule: {e}")
     
     def _generate_simple_daily_schedule(self):
@@ -738,6 +760,29 @@ class WellnessSchedulerApp:
         
         # Get today's date
         today = datetime.now().date()
+        
+        # Parse times from settings
+        wake_time = datetime.strptime(self.settings.wake_time, "%H:%M").time()
+        bedtime = datetime.strptime(self.settings.bedtime, "%H:%M").time()
+        dinner_time = datetime.strptime(self.settings.dinner_time, "%H:%M").time()
+        
+        # Calculate times based on settings
+        wake_datetime = datetime.combine(today, wake_time)
+        bedtime_datetime = datetime.combine(today, bedtime)
+        dinner_datetime = datetime.combine(today, dinner_time)
+        
+        # Calculate derived times
+        probiotic_time = wake_datetime + timedelta(minutes=30)  # 30 min after wake
+        breakfast_time = wake_datetime + timedelta(minutes=90)  # 1.5 hours after wake
+        lunch_time = wake_datetime + timedelta(hours=4, minutes=30)  # 4.5 hours after wake
+        electrolyte_time = wake_datetime + timedelta(hours=2)  # 2 hours after wake
+        lglutamine_time = wake_datetime + timedelta(hours=2, minutes=30)  # 2.5 hours after wake
+        collagen_afternoon = wake_datetime + timedelta(hours=6, minutes=30)  # 6.5 hours after wake
+        lglutamine_afternoon = wake_datetime + timedelta(hours=7, minutes=30)  # 7.5 hours after wake
+        aloe_time = dinner_datetime - timedelta(hours=1)  # 1 hour before dinner
+        dgl_dinner_time = dinner_datetime - timedelta(minutes=20)  # 20 min before dinner
+        magnesium_time = bedtime_datetime - timedelta(hours=1, minutes=30)  # 1.5 hours before bed
+        melatonin_time = bedtime_datetime - timedelta(minutes=30)  # 30 min before bed
         
         # Create the complete daily schedule
         daily_schedule = [
@@ -755,7 +800,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T08:30:00",
+                "scheduled_time": probiotic_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -773,7 +818,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": True
                 },
-                "scheduled_time": f"{today}T09:00:00",
+                "scheduled_time": breakfast_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -791,7 +836,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T10:00:00",
+                "scheduled_time": electrolyte_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -809,7 +854,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": True
                 },
-                "scheduled_time": f"{today}T10:30:00",
+                "scheduled_time": lglutamine_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -828,7 +873,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T12:10:00",
+                "scheduled_time": (lunch_time - timedelta(minutes=20)).isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -846,7 +891,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T12:30:00",
+                "scheduled_time": lunch_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -865,7 +910,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": True
                 },
-                "scheduled_time": f"{today}T14:00:00",
+                "scheduled_time": collagen_afternoon.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -883,7 +928,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": True
                 },
-                "scheduled_time": f"{today}T15:00:00",
+                "scheduled_time": lglutamine_afternoon.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -901,7 +946,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T17:30:00",
+                "scheduled_time": aloe_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -920,7 +965,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T19:10:00",
+                "scheduled_time": dgl_dinner_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -938,7 +983,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T19:30:00",
+                "scheduled_time": dinner_datetime.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -956,7 +1001,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T19:30:00",
+                "scheduled_time": dinner_datetime.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -975,7 +1020,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": False
                 },
-                "scheduled_time": f"{today}T22:30:00",
+                "scheduled_time": magnesium_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
@@ -993,7 +1038,7 @@ class WellnessSchedulerApp:
                     "enabled": True,
                     "optional": True
                 },
-                "scheduled_time": f"{today}T23:30:00",
+                "scheduled_time": melatonin_time.isoformat(),
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
