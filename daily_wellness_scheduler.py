@@ -1134,8 +1134,8 @@ class WellnessSchedulerApp:
         # Update progress
         self._update_progress()
         
-        # Save progress automatically
-        self._save_progress()
+        # Save progress automatically (silently)
+        self._save_progress_silent()
     
     def _update_progress(self):
         """Update progress percentage and bar"""
@@ -1173,8 +1173,33 @@ class WellnessSchedulerApp:
         # Color coding - just use the default progress bar style
         # (Background color doesn't work with ttk.Progressbar)
     
+    def _save_progress_silent(self):
+        """Save current progress to file silently (no popup)"""
+        try:
+            import os
+            from datetime import datetime
+            
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(self.progress_file), exist_ok=True)
+            
+            # Get today's date
+            today = datetime.now().date().isoformat()
+            
+            # Load existing progress or create new
+            progress_data = self._load_progress_data()
+            
+            # Update today's progress
+            progress_data[today] = self.item_states.copy()
+            
+            # Save to file
+            with open(self.progress_file, 'w') as f:
+                json.dump(progress_data, f, indent=2)
+                
+        except Exception as e:
+            print(f"Error saving progress: {e}")
+    
     def _save_progress(self):
-        """Save current progress to file"""
+        """Save current progress to file with confirmation"""
         try:
             import os
             from datetime import datetime
