@@ -652,7 +652,9 @@ class WellnessSchedulerApp:
         ttk.Button(pushbullet_frame, text="Save API Key", command=self._save_pushbullet_key).pack(anchor=tk.W, pady=(5, 0))
         
         # Generate button
-        ttk.Button(settings_frame, text="Refresh Today's Plan", command=self._generate_schedule).pack(pady=10)
+        ttk.Button(settings_frame, text="Refresh Today's Plan", command=self._generate_schedule).pack(pady=5)
+        
+        ttk.Button(settings_frame, text="Regenerate Schedule", command=self._regenerate_schedule).pack(pady=5)
     
     def _create_schedule_panel(self, parent):
         """Create the schedule display panel"""
@@ -706,6 +708,29 @@ class WellnessSchedulerApp:
         self._update_schedule_display()
         
         # Schedule generated silently - no popup needed
+    
+    def _regenerate_schedule(self):
+        """Regenerate schedule with current settings from GUI"""
+        try:
+            # Update settings from GUI
+            self._update_settings_from_gui()
+            
+            # Generate a fresh daily schedule with new settings
+            self.current_schedule = self._generate_simple_daily_schedule()
+            
+            # Save to file
+            self._save_settings()
+            
+            # Update all displays
+            self._update_today_display()
+            self._update_week_display()
+            self._update_sixweek_display()
+            
+            messagebox.showinfo("Success", "Schedule regenerated with new settings!")
+            
+        except Exception as e:
+            print(f"Error regenerating schedule: {e}")
+            messagebox.showerror("Error", f"Failed to regenerate schedule: {e}")
     
     def _generate_simple_daily_schedule(self):
         """Generate a simple daily schedule with all supplements"""
