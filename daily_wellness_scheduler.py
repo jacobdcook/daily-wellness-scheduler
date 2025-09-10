@@ -670,7 +670,7 @@ class WellnessSchedulerApp:
         # Update display
         self._update_schedule_display()
         
-        messagebox.showinfo("Success", "Daily schedule generated successfully!")
+        # Schedule generated silently - no popup needed
     
     def _generate_simple_daily_schedule(self):
         """Generate a simple daily schedule with all supplements"""
