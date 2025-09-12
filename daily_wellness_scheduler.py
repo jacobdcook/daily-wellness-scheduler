@@ -66,8 +66,10 @@ class UserSettings:
     wake_time: str = "07:30"
     bedtime: str = "22:00"
     dinner_time: str = "18:30"
-    breakfast_mode: str = "sometimes"  # usually, sometimes, skip
-    breakfast_days: List[bool] = None  # 7 days starting Monday
+    breakfast_mode: str = "yes"  # yes, no
+    lunch_mode: str = "yes"  # yes, no
+    dinner_mode: str = "yes"  # yes, no (always yes since user always eats dinner)
+    breakfast_days: List[bool] = None  # 7 days starting Monday (deprecated, keeping for compatibility)
     study_start: str = "09:30"
     study_end: str = "17:30"
     workout_days: List[bool] = None  # 7 days starting Monday
@@ -469,7 +471,8 @@ class WellnessSchedulerApp:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Daily Wellness Scheduler")
-        self.root.geometry("1200x800")
+        self.root.geometry("1200x900")
+        self.root.minsize(1000, 800)  # Minimum window size
         
         # Set application icon
         try:
@@ -599,14 +602,33 @@ class WellnessSchedulerApp:
         self.dinner_var = tk.StringVar(value=self.settings.dinner_time)
         ttk.Entry(time_frame, textvariable=self.dinner_var, width=10).grid(row=1, column=1, sticky=tk.W)
         
-        # Breakfast settings
-        breakfast_frame = ttk.LabelFrame(settings_frame, text="Breakfast", padding="5")
-        breakfast_frame.pack(fill=tk.X, pady=(0, 10))
+        # Meal settings
+        meal_frame = ttk.LabelFrame(settings_frame, text="Meal Schedule", padding="5")
+        meal_frame.pack(fill=tk.X, pady=(0, 10))
         
+        # Breakfast
+        breakfast_frame = ttk.Frame(meal_frame)
+        breakfast_frame.pack(fill=tk.X, pady=2)
+        ttk.Label(breakfast_frame, text="Breakfast:").pack(side=tk.LEFT, padx=(0, 10))
         self.breakfast_mode = tk.StringVar(value=self.settings.breakfast_mode)
-        ttk.Radiobutton(breakfast_frame, text="Usually", variable=self.breakfast_mode, value="usually").pack(anchor=tk.W)
-        ttk.Radiobutton(breakfast_frame, text="Sometimes", variable=self.breakfast_mode, value="sometimes").pack(anchor=tk.W)
-        ttk.Radiobutton(breakfast_frame, text="Skip Most Days", variable=self.breakfast_mode, value="skip").pack(anchor=tk.W)
+        ttk.Radiobutton(breakfast_frame, text="Yes", variable=self.breakfast_mode, value="yes").pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Radiobutton(breakfast_frame, text="No", variable=self.breakfast_mode, value="no").pack(side=tk.LEFT)
+        
+        # Lunch
+        lunch_frame = ttk.Frame(meal_frame)
+        lunch_frame.pack(fill=tk.X, pady=2)
+        ttk.Label(lunch_frame, text="Lunch:").pack(side=tk.LEFT, padx=(0, 10))
+        self.lunch_mode = tk.StringVar(value=self.settings.lunch_mode)
+        ttk.Radiobutton(lunch_frame, text="Yes", variable=self.lunch_mode, value="yes").pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Radiobutton(lunch_frame, text="No", variable=self.lunch_mode, value="no").pack(side=tk.LEFT)
+        
+        # Dinner
+        dinner_frame = ttk.Frame(meal_frame)
+        dinner_frame.pack(fill=tk.X, pady=2)
+        ttk.Label(dinner_frame, text="Dinner:").pack(side=tk.LEFT, padx=(0, 10))
+        self.dinner_mode = tk.StringVar(value=self.settings.dinner_mode)
+        ttk.Radiobutton(dinner_frame, text="Yes", variable=self.dinner_mode, value="yes").pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Radiobutton(dinner_frame, text="No", variable=self.dinner_mode, value="no").pack(side=tk.LEFT)
         
         # Study block
         study_frame = ttk.LabelFrame(settings_frame, text="Study Block", padding="5")
@@ -1194,7 +1216,7 @@ class WellnessSchedulerApp:
         self._update_sixweek_display()
     
     def _generate_simple_daily_schedule(self):
-        """Generate a simple daily schedule with all supplements"""
+        """Generate a simple daily schedule with conditional supplements based on meal choices"""
         from datetime import datetime, timedelta
         
         # Get today's date
@@ -1223,6 +1245,11 @@ class WellnessSchedulerApp:
         magnesium_time = bedtime_datetime - timedelta(hours=1, minutes=30)  # 1.5 hours before bed
         melatonin_time = bedtime_datetime - timedelta(minutes=30)  # 30 min before bed
         
+        # Check meal choices
+        has_breakfast = self.settings.breakfast_mode == "yes"
+        has_lunch = self.settings.lunch_mode == "yes"
+        has_dinner = self.settings.dinner_mode == "yes"
+        
         # Create the complete daily schedule
         daily_schedule = [
             # Morning supplements
@@ -1244,7 +1271,11 @@ class WellnessSchedulerApp:
                 "shifted": False,
                 "shift_reason": ""
             },
-            {
+        ]
+        
+        # Add breakfast supplements if eating breakfast
+        if has_breakfast:
+            daily_schedule.append({
                 "item": {
                     "name": "Collagen Peptides",
                     "dose": "10 g",
@@ -1261,7 +1292,30 @@ class WellnessSchedulerApp:
                 "day_type": "light",
                 "shifted": False,
                 "shift_reason": ""
-            },
+            })
+        else:
+            # If no breakfast, still add Collagen Peptides at the same time as L-Glutamine
+            daily_schedule.append({
+                "item": {
+                    "name": "Collagen Peptides",
+                    "dose": "10 g",
+                    "timing_rule": "between_meals",
+                    "notes": "Mix in water with L-Glutamine",
+                    "window_minutes": 15,
+                    "anchor": "wake",
+                    "offset_minutes": 90,
+                    "conflicts": [],
+                    "enabled": True,
+                    "optional": True
+                },
+                "scheduled_time": breakfast_time.isoformat(),
+                "day_type": "light",
+                "shifted": False,
+                "shift_reason": ""
+            })
+        
+        # Add other morning supplements
+        daily_schedule.extend([
             {
                 "item": {
                     "name": "Electrolyte Mix",
@@ -1298,44 +1352,51 @@ class WellnessSchedulerApp:
                 "shifted": False,
                 "shift_reason": ""
             },
-            # Lunch supplements
-            {
-                "item": {
-                    "name": "DGL Plus",
-                    "dose": "1-2 tablets/capsules",
-                    "timing_rule": "before_meal",
-                    "notes": "15-20 min before meals, twice daily",
-                    "window_minutes": 15,
-                    "anchor": "lunch",
-                    "offset_minutes": -20,
-                    "conflicts": [],
-                    "enabled": True,
-                    "optional": False
+        ])
+        
+        # Add lunch supplements if eating lunch
+        if has_lunch:
+            daily_schedule.extend([
+                {
+                    "item": {
+                        "name": "DGL Plus",
+                        "dose": "1-2 tablets/capsules",
+                        "timing_rule": "before_meal",
+                        "notes": "15-20 min before meals, twice daily",
+                        "window_minutes": 15,
+                        "anchor": "lunch",
+                        "offset_minutes": -20,
+                        "conflicts": [],
+                        "enabled": True,
+                        "optional": False
+                    },
+                    "scheduled_time": (lunch_time - timedelta(minutes=20)).isoformat(),
+                    "day_type": "light",
+                    "shifted": False,
+                    "shift_reason": ""
                 },
-                "scheduled_time": (lunch_time - timedelta(minutes=20)).isoformat(),
-                "day_type": "light",
-                "shifted": False,
-                "shift_reason": ""
-            },
-            {
-                "item": {
-                    "name": "PepZin GI",
-                    "dose": "37.5 mg",
-                    "timing_rule": "with_meal",
-                    "notes": "Zinc-Carnosine, twice daily",
-                    "window_minutes": 15,
-                    "anchor": "lunch",
-                    "offset_minutes": 0,
-                    "conflicts": [],
-                    "enabled": True,
-                    "optional": False
-                },
-                "scheduled_time": lunch_time.isoformat(),
-                "day_type": "light",
-                "shifted": False,
-                "shift_reason": ""
-            },
-            # Afternoon supplements
+                {
+                    "item": {
+                        "name": "PepZin GI",
+                        "dose": "37.5 mg",
+                        "timing_rule": "with_meal",
+                        "notes": "Zinc-Carnosine, twice daily",
+                        "window_minutes": 15,
+                        "anchor": "lunch",
+                        "offset_minutes": 0,
+                        "conflicts": [],
+                        "enabled": True,
+                        "optional": False
+                    },
+                    "scheduled_time": lunch_time.isoformat(),
+                    "day_type": "light",
+                    "shifted": False,
+                    "shift_reason": ""
+                }
+            ])
+        
+        # Add afternoon supplements
+        daily_schedule.extend([
             {
                 "item": {
                     "name": "Collagen Peptides",
@@ -1390,7 +1451,11 @@ class WellnessSchedulerApp:
                 "shifted": False,
                 "shift_reason": ""
             },
-            # Dinner supplements
+        ])
+        
+        # Add dinner supplements if eating dinner
+        if has_dinner:
+            daily_schedule.extend([
             {
                 "item": {
                     "name": "DGL Plus",
@@ -1482,7 +1547,7 @@ class WellnessSchedulerApp:
                 "shifted": False,
                 "shift_reason": ""
             }
-        ]
+            ])
         
         # Return as a single-day schedule
         return {str(today): daily_schedule}
@@ -1493,6 +1558,8 @@ class WellnessSchedulerApp:
         self.settings.bedtime = self.bed_var.get()
         self.settings.dinner_time = self.dinner_var.get()
         self.settings.breakfast_mode = self.breakfast_mode.get()
+        self.settings.lunch_mode = self.lunch_mode.get()
+        self.settings.dinner_mode = self.dinner_mode.get()
         self.settings.study_start = self.study_start_var.get()
         self.settings.study_end = self.study_end_var.get()
         self.settings.electrolyte_intensity = self.intensity_var.get()
