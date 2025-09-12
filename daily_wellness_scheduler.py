@@ -1549,6 +1549,9 @@ class WellnessSchedulerApp:
             }
             ])
         
+        # Sort by time
+        daily_schedule.sort(key=lambda x: x["scheduled_time"])
+        
         # Return as a single-day schedule
         return {str(today): daily_schedule}
     
