@@ -1,131 +1,88 @@
 # Daily Wellness Scheduler
 
-A Python desktop application that generates personalized 6-week supplement and electrolyte schedules based on your daily habits and timing preferences.
+A modern, web-based application to manage your daily supplement, electrolyte, and wellness schedule.
 
-## Features
+## ✨ Features
 
-- **Smart Scheduling**: Automatically calculates optimal supplement timing based on meal schedules, study blocks, and workout times
-- **Conflict Resolution**: Ensures proper spacing between supplements and meals to avoid absorption issues
-- **Flexible Configuration**: Customize wake times, meal schedules, workout days, and optional supplements
-- **Multiple Views**: Today's checklist, weekly overview, and 6-week calendar
-- **Export Options**: Save schedules to CSV or iCal format for use in other applications
-- **CLI Mode**: Run headless for automation or quick schedule printing
+-   **Smart Scheduling**: Automatically generates a schedule based on your meal times, workout days, and study blocks.
+-   **Persistent & Editable**: Your schedule is saved automatically. You can manually edit any item's time, dose, or notes.
+-   **Custom Items**: Add your own custom events or supplements to the schedule.
+-   **Fasting Support**: Built-in fasting mode (Light/Strict) that adjusts supplement timing around your feeding window.
+-   **Pushbullet Notifications**: Get real-time alerts to your phone/PC when it's time to take a supplement.
+-   **Mobile Responsive**: Full web interface that works great on desktop and mobile.
+-   **Progress Tracking**: Check off items as you go. Progress is saved daily.
+-   **Multiple Views**:
+    -   **Today**: Focused daily checklist with progress bar.
+    -   **Week**: 7-day overview.
+    -   **6-Week**: Long-term planning view.
 
-## Quick Start
+## 🚀 Quick Start
 
-### GUI Mode (Recommended)
-```bash
-python daily_wellness_scheduler.py
-```
+### Prerequisites
+-   Python 3.10+
+-   Node.js 18+ (for the frontend)
 
-### CLI Mode
-```bash
-# Print today's schedule
-python daily_wellness_scheduler.py --today
+### Running the App
 
-# Export to CSV
-python daily_wellness_scheduler.py --export-csv my_schedule.csv
+1.  **Install Backend Dependencies**:
+    ```bash
+    pip install fastapi uvicorn pydantic python-multipart requests
+    ```
 
-# Export to iCal
-python daily_wellness_scheduler.py --export-ics my_schedule.ics
+2.  **Install Frontend Dependencies**:
+    ```bash
+    cd frontend
+    npm install
+    cd ..
+    ```
 
-# Use sweaty day mode
-python daily_wellness_scheduler.py --today --sweaty
-```
+3.  **Start the Application**:
+    This single script launches both the FastAPI backend and Next.js frontend:
+    ```bash
+    python start_app.py
+    ```
+    
+    The app will open automatically at **http://localhost:3000**.
 
-## Installation
+## 🛠 Configuration
 
-1. **Requirements**: Python 3.10 or higher
-2. **Dependencies**: Uses only standard library modules (tkinter, json, datetime, csv)
-3. **No additional packages needed**
+-   **Settings Panel**: Click the gear icon to configure:
+    -   Wake/Bed/Dinner times
+    -   Meal patterns (Breakfast/Lunch/Dinner)
+    -   Fasting Window & Intensity
+    -   Workout Schedule
+    -   Pushbullet API Key
+-   **Custom Items**: Click "Add Custom Item" to add one-off or recurring items.
+-   **Editing**: Click the pencil icon on any item to modify it.
+-   **Regenerate**: If you change your core settings significantly, use the "Regenerate Schedule" button in settings to rebuild your plan.
 
-## Configuration
+## 📂 Project Structure
 
-The app comes pre-configured with a comprehensive supplement regimen including:
+-   **`backend/`**: FastAPI Python application (API, Logic, Persistence).
+    -   `main.py`: API endpoints.
+    -   `scheduler_engine.py`: Core scheduling logic.
+    -   `models.py`: Pydantic data models.
+-   **`frontend/`**: Next.js React application (UI).
+    -   `app/page.tsx`: Main dashboard.
+    -   `src/components/`: UI components (Modals, Views, Settings).
+-   **`start_app.py`**: Launcher script.
+-   **`daily_wellness_scheduler.py`**: (Legacy) Original Tkinter desktop version.
 
-### Core Supplements
-- **Electrolyte Mix**: Citric-free blend with Baja Gold salt, potassium bicarbonate, and ConcenTrace
-- **Magnesium Glycinate**: 60-120mg elemental, taken before bed
-- **PepZin GI**: Zinc-Carnosine for gut health, taken with meals
-- **DGL**: Taken 10-15 minutes before meals
-- **Aloe Vera Juice**: Between meals for digestive support
-- **Probiotic**: On empty stomach for optimal absorption
-- **Omega-3 + D3/K2**: With fat-containing meals
+## 🔔 Notifications
 
-### Optional Supplements
-- **Melatonin**: Low-dose sleep support
-- **Slippery Elm Tea**: For throat irritation
-- **L-Glutamine**: Gut healing support
-- **Collagen Peptides**: Joint and skin health
+To enable notifications:
+1.  Get an API Key from [Pushbullet.com](https://www.pushbullet.com/).
+2.  Enter it in the Settings panel.
+3.  The app will check for upcoming supplements every minute and send alerts.
 
-## Timing Rules
+## 💾 Data Storage
 
-The scheduler follows strict timing rules to ensure optimal absorption:
+All data is stored locally in the `.local_private/` directory:
+-   `settings.json`: Your configuration.
+-   `progress.json`: Daily completion status.
+-   `schedule.json`: The generated and edited schedule.
+-   `pushbullet_key.txt`: Your API key.
 
-- **Meal Spacing**: Electrolytes and other supplements are scheduled at least 60 minutes away from meals
-- **Empty Stomach**: Probiotics are taken on empty stomach, 30-60 minutes after waking
-- **Before Meals**: DGL is taken 10-15 minutes before meals
-- **Night Stack**: Aloe → Magnesium → Melatonin in the final 2 hours before bed
-- **Workout Timing**: Electrolytes can be scheduled around workouts when appropriate
+## 📜 License
 
-## Data Storage
-
-- Settings and schedules are saved in `.local_private/supplement_schedule.json`
-- This folder is automatically added to `.gitignore` to protect your personal data
-- All data persists between sessions
-
-## Testing
-
-Run the test suite to verify scheduling logic:
-
-```bash
-python tests_schedule.py
-```
-
-Tests verify:
-- Proper meal spacing for electrolytes
-- Correct DGL timing before meals
-- Empty stomach scheduling for probiotics
-- Night stack ordering
-- Conflict resolution
-- Optional item toggling
-
-## Usage Tips
-
-1. **First Run**: The app opens with sensible defaults. Adjust your wake time, meal schedule, and study hours in the settings panel.
-
-2. **Breakfast Mode**: Choose "Usually", "Sometimes", or "Skip Most Days". If "Sometimes", you can set specific days of the week.
-
-3. **Electrolyte Intensity**: Toggle between "Light Day" and "Sweaty Day" to adjust sodium and potassium amounts.
-
-4. **Workout Days**: Check the days you work out and set your workout time for optimal electrolyte scheduling.
-
-5. **Generate Plan**: Click "Generate 6-Week Plan" to create your personalized schedule starting today.
-
-6. **Export**: Use the export buttons to save your schedule to CSV (for spreadsheets) or iCal (for calendar apps).
-
-## Troubleshooting
-
-- **No Schedule**: Make sure to click "Generate 6-Week Plan" after adjusting settings
-- **Timing Conflicts**: The app automatically resolves conflicts by shifting times up to 45 minutes
-- **Missing Supplements**: Check that optional items are enabled in the settings panel
-
-## File Structure
-
-```
-daily-wellness-scheduler/
-├── daily_wellness_scheduler.py    # Main application
-├── tests_schedule.py              # Test suite
-├── README.md                      # This file
-├── .gitignore                     # Excludes .local_private/
-└── .local_private/                # Personal data (not committed)
-    └── supplement_schedule.json   # Your settings and schedules
-```
-
-## License
-
-This project is provided as-is for personal use. Feel free to modify and adapt to your needs.
-
----
-
-**Note**: This application is designed for educational and personal use. Always consult with healthcare professionals before starting any supplement regimen.
+Personal use only.
