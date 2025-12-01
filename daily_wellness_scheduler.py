@@ -59,6 +59,9 @@ class SupplementItem:
     conflicts: List[str]
     enabled: bool = True
     optional: bool = False
+    caloric: bool = False
+    fasting_action: str = "allow"  # allow, defer, skip, meal_dependent
+    fasting_notes: str = ""
 
 
 @dataclass
@@ -78,6 +81,9 @@ class UserSettings:
     electrolyte_intensity: str = "light"  # light, sweaty
     timezone: str = "America/Los_Angeles"
     optional_items: Dict[str, bool] = None
+    fasting: str = "no"  # no, yes
+    fasting_level: str = "light"  # light, strict
+    feeding_window: Dict[str, str] = None  # {"start": "11:30", "end": "19:30"}
     
     def __post_init__(self):
         if self.breakfast_days is None:
@@ -91,6 +97,8 @@ class UserSettings:
                 "collagen": False,
                 "melatonin": False
             }
+        if self.feeding_window is None:
+            self.feeding_window = {"start": "11:30", "end": "19:30"}
 
 
 @dataclass
@@ -123,7 +131,10 @@ class SupplementScheduler:
                 anchor="wake",
                 offset_minutes=120,  # 2 hours after wake
                 conflicts=["meals"],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="allow",
+                fasting_notes="No sugar/citric; hydration OK"
             ),
             SupplementItem(
                 name="Magnesium Glycinate",
@@ -134,7 +145,10 @@ class SupplementScheduler:
                 anchor="bed",
                 offset_minutes=-90,  # 1.5 hours before bed
                 conflicts=[],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="allow",
+                fasting_notes="Mineral capsule; OK"
             ),
             SupplementItem(
                 name="PepZin GI",
@@ -145,7 +159,10 @@ class SupplementScheduler:
                 anchor="lunch",
                 offset_minutes=0,
                 conflicts=[],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="meal_dependent",
+                fasting_notes="With meal only; skip if meal skipped"
             ),
             SupplementItem(
                 name="PepZin GI",
@@ -156,7 +173,10 @@ class SupplementScheduler:
                 anchor="dinner",
                 offset_minutes=0,
                 conflicts=[],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="meal_dependent",
+                fasting_notes="With meal only; skip if meal skipped"
             ),
             SupplementItem(
                 name="DGL Plus",
@@ -167,7 +187,10 @@ class SupplementScheduler:
                 anchor="lunch",
                 offset_minutes=-20,  # 20 minutes before lunch
                 conflicts=[],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="meal_dependent",
+                fasting_notes="Take before a meal only"
             ),
             SupplementItem(
                 name="DGL Plus",
@@ -178,7 +201,10 @@ class SupplementScheduler:
                 anchor="dinner",
                 offset_minutes=-20,  # 20 minutes before dinner
                 conflicts=[],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="meal_dependent",
+                fasting_notes="Take before a meal only"
             ),
             SupplementItem(
                 name="Aloe Vera Juice",
@@ -189,7 +215,10 @@ class SupplementScheduler:
                 anchor="dinner",
                 offset_minutes=-120,  # 2 hours before dinner
                 conflicts=["meals"],
-                enabled=True
+                enabled=True,
+                caloric=True,
+                fasting_action="defer",
+                fasting_notes="Liquid calories; breaks strict fast — defer to feeding window"
             ),
             SupplementItem(
                 name="Probiotic",
@@ -200,7 +229,10 @@ class SupplementScheduler:
                 anchor="wake",
                 offset_minutes=30,  # 30 min after wake
                 conflicts=["meals"],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="allow",
+                fasting_notes="Zero-calorie capsule; fine during fast"
             ),
             SupplementItem(
                 name="Omega-3 + D3/K2",
@@ -211,7 +243,10 @@ class SupplementScheduler:
                 anchor="dinner",
                 offset_minutes=0,
                 conflicts=[],
-                enabled=True
+                enabled=True,
+                caloric=False,
+                fasting_action="meal_dependent",
+                fasting_notes="Take with fat-containing meal only"
             ),
             # Optional items
             SupplementItem(
@@ -224,7 +259,10 @@ class SupplementScheduler:
                 offset_minutes=-30,  # 30 min before bed
                 conflicts=[],
                 enabled=False,
-                optional=True
+                optional=True,
+                caloric=False,
+                fasting_action="allow",
+                fasting_notes="OK before bed"
             ),
             SupplementItem(
                 name="Slippery Elm Tea",
@@ -236,7 +274,10 @@ class SupplementScheduler:
                 offset_minutes=60,  # 1 hour after study
                 conflicts=["supplements"],
                 enabled=False,
-                optional=True
+                optional=True,
+                caloric=True,
+                fasting_action="defer",
+                fasting_notes="Tea with calories; defer to feeding window"
             ),
             SupplementItem(
                 name="L-Glutamine",
@@ -248,7 +289,10 @@ class SupplementScheduler:
                 offset_minutes=150,  # 2.5 hours after wake (10:30 AM)
                 conflicts=["meals", "hot_drinks"],
                 enabled=False,
-                optional=True
+                optional=True,
+                caloric=True,
+                fasting_action="defer",
+                fasting_notes="Amino acid has calories; defer on light fast; skip on strict"
             ),
             SupplementItem(
                 name="L-Glutamine",
@@ -260,7 +304,10 @@ class SupplementScheduler:
                 offset_minutes=180,  # 3 hours after study start (3:00 PM)
                 conflicts=["meals", "hot_drinks"],
                 enabled=False,
-                optional=True
+                optional=True,
+                caloric=True,
+                fasting_action="defer",
+                fasting_notes="Amino acid has calories; defer on light fast; skip on strict"
             ),
             SupplementItem(
                 name="Collagen Peptides",
@@ -272,7 +319,10 @@ class SupplementScheduler:
                 offset_minutes=0,  # with breakfast
                 conflicts=[],
                 enabled=False,
-                optional=True
+                optional=True,
+                caloric=True,
+                fasting_action="defer",
+                fasting_notes="Protein breaks fast; move to feeding window"
             ),
             SupplementItem(
                 name="Collagen Peptides",
@@ -284,7 +334,10 @@ class SupplementScheduler:
                 offset_minutes=120,  # 2 hours after study start (2:00 PM)
                 conflicts=["meals"],
                 enabled=False,
-                optional=True
+                optional=True,
+                caloric=True,
+                fasting_action="defer",
+                fasting_notes="Protein breaks fast; move to feeding window"
             )
         ]
     
@@ -322,9 +375,17 @@ class SupplementScheduler:
     def _schedule_day(self, date: datetime.date, day_type: DayType, is_workout: bool, has_breakfast: bool) -> List[ScheduledItem]:
         """Schedule all supplements for a single day"""
         scheduled_items = []
+        deferred_items = []  # Items to defer to feeding window
         
         # Create time anchors for the day
         anchors = self._create_time_anchors(date, is_workout, has_breakfast)
+        
+        # Handle fasting mode
+        is_fasting = self.settings.fasting == "yes"
+        feeding_window_times = None
+        
+        if is_fasting:
+            feeding_window_times = self._get_feeding_window_times(date, anchors, has_breakfast)
         
         # Schedule each enabled supplement
         for supplement in self.supplements:
@@ -336,6 +397,15 @@ class SupplementScheduler:
                 item_key = supplement.name.lower().replace(" ", "_").replace("-", "_")
                 if not self.settings.optional_items.get(item_key, False):
                     continue
+            
+            # Apply fasting logic if enabled
+            if is_fasting:
+                action = self._get_fasting_action(supplement, anchors, feeding_window_times, has_breakfast)
+                if action == "skip":
+                    continue
+                elif action == "defer":
+                    deferred_items.append(supplement)
+                    continue
                 
             scheduled_time = self._find_best_time(supplement, anchors, scheduled_items, day_type)
             if scheduled_time:
@@ -346,8 +416,102 @@ class SupplementScheduler:
                 )
                 scheduled_items.append(scheduled_item)
         
+        # Schedule deferred items in feeding window
+        if is_fasting and deferred_items and feeding_window_times:
+            deferred_scheduled = self._schedule_deferred_items(deferred_items, feeding_window_times, date, day_type)
+            scheduled_items.extend(deferred_scheduled)
+        
         # Sort by time
         scheduled_items.sort(key=lambda x: x.scheduled_time)
+        return scheduled_items
+    
+    def _get_feeding_window_times(self, date: datetime.date, anchors: Dict[str, datetime], has_breakfast: bool) -> Dict[str, datetime]:
+        """Get feeding window start and end times for the day"""
+        # Use feeding window from settings or derive from meals
+        start_time_str = self.settings.feeding_window.get("start", "11:30")
+        end_time_str = self.settings.feeding_window.get("end", "19:30")
+        
+        # If feeding window is missing in settings, derive from meals
+        if not start_time_str or not end_time_str:
+            if self.settings.lunch_mode == "yes" and "lunch" in anchors:
+                start_time_str = anchors["lunch"].strftime("%H:%M")
+            if self.settings.dinner_mode == "yes" and "dinner" in anchors:
+                dinner_end = anchors["dinner"] + timedelta(minutes=60)
+                end_time_str = dinner_end.strftime("%H:%M")
+        
+        start_time = self._parse_time(start_time_str)
+        end_time = self._parse_time(end_time_str)
+        
+        return {
+            "start": datetime.combine(date, start_time),
+            "end": datetime.combine(date, end_time)
+        }
+    
+    def _get_fasting_action(self, supplement: SupplementItem, anchors: Dict[str, datetime], 
+                           feeding_window_times: Dict[str, datetime], has_breakfast: bool) -> str:
+        """Determine what action to take with a supplement during fasting"""
+        
+        if supplement.fasting_action == "allow":
+            return "allow"
+        elif supplement.fasting_action == "skip":
+            return "skip"
+        elif supplement.fasting_action == "meal_dependent":
+            # Check if the meal is skipped or outside feeding window
+            anchor = supplement.anchor
+            if anchor in ["breakfast", "lunch", "dinner"]:
+                # Check if meal is scheduled
+                if anchor == "breakfast" and not has_breakfast:
+                    return "skip"
+                if anchor == "lunch" and self.settings.lunch_mode != "yes":
+                    return "skip"
+                if anchor == "dinner" and self.settings.dinner_mode != "yes":
+                    return "skip"
+                
+                # Check if meal time is outside feeding window
+                if anchor in anchors:
+                    meal_time = anchors[anchor]
+                    if (meal_time < feeding_window_times["start"] or 
+                        meal_time > feeding_window_times["end"]):
+                        return "skip"
+            
+            return "allow"
+        elif supplement.fasting_action == "defer":
+            # Skip if strict fasting, defer if light fasting
+            if self.settings.fasting_level == "strict":
+                return "skip"
+            else:
+                return "defer"
+        
+        return "allow"
+    
+    def _schedule_deferred_items(self, deferred_items: List[SupplementItem], 
+                                feeding_window_times: Dict[str, datetime], 
+                                date: datetime.date, day_type: DayType) -> List[ScheduledItem]:
+        """Schedule deferred items within the feeding window"""
+        scheduled_items = []
+        
+        # Start scheduling 15 minutes after feeding window starts
+        current_time = feeding_window_times["start"] + timedelta(minutes=15)
+        
+        # Keep original order and space by 15 minutes
+        for supplement in deferred_items:
+            # Make sure we don't exceed feeding window
+            if current_time > feeding_window_times["end"]:
+                break
+                
+            scheduled_item = ScheduledItem(
+                item=supplement,
+                scheduled_time=current_time,
+                day_type=day_type,
+                shifted=True,
+                shift_reason="Deferred to feeding window during fasting"
+            )
+            scheduled_items.append(scheduled_item)
+            
+            # Space items by 15 minutes, respecting window_minutes
+            spacing = max(15, supplement.window_minutes)
+            current_time += timedelta(minutes=spacing)
+        
         return scheduled_items
     
     def _create_time_anchors(self, date: datetime.date, is_workout: bool, has_breakfast: bool) -> Dict[str, datetime]:
@@ -496,6 +660,9 @@ class WellnessSchedulerApp:
         
         # Create GUI
         self._create_gui()
+        
+        # Initialize fasting controls visibility (now that GUI is created)
+        self._setup_fasting_controls()
         
         # Load today's progress
         self._load_today_progress()
@@ -660,6 +827,52 @@ class WellnessSchedulerApp:
             self.optional_vars[item] = var
             ttk.Checkbutton(optional_frame, text=item.replace("_", " ").title(), variable=var).pack(anchor=tk.W)
         
+        # Fasting controls
+        fasting_frame = ttk.LabelFrame(settings_frame, text="Fasting Mode", padding="5")
+        fasting_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        # Fasting on/off
+        self.fasting_mode_frame = ttk.Frame(fasting_frame)
+        self.fasting_mode_frame.pack(fill=tk.X, pady=2)
+        ttk.Label(self.fasting_mode_frame, text="Fasting:").pack(side=tk.LEFT, padx=(0, 10))
+        self.fasting_var = tk.StringVar(value=self.settings.fasting)
+        ttk.Radiobutton(self.fasting_mode_frame, text="No", variable=self.fasting_var, value="no", command=self._on_fasting_change).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Radiobutton(self.fasting_mode_frame, text="Yes", variable=self.fasting_var, value="yes", command=self._on_fasting_change).pack(side=tk.LEFT)
+        
+        # Fasting level (only shown when fasting is enabled)
+        self.fasting_level_frame = ttk.Frame(fasting_frame)
+        self.fasting_level_frame.pack(fill=tk.X, pady=2)
+        ttk.Label(self.fasting_level_frame, text="Fasting Level:").pack(side=tk.LEFT, padx=(0, 10))
+        self.fasting_level_var = tk.StringVar(value=self.settings.fasting_level)
+        ttk.Radiobutton(self.fasting_level_frame, text="Light", variable=self.fasting_level_var, value="light").pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Radiobutton(self.fasting_level_frame, text="Strict", variable=self.fasting_level_var, value="strict").pack(side=tk.LEFT)
+        
+        # Feeding window (only shown when fasting is enabled)
+        self.feeding_window_frame = ttk.Frame(fasting_frame)
+        self.feeding_window_frame.pack(fill=tk.X, pady=2)
+        ttk.Label(self.feeding_window_frame, text="Feeding Window:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        ttk.Label(self.feeding_window_frame, text="Start:").grid(row=0, column=1, sticky=tk.W, padx=(10, 5))
+        self.feeding_start_var = tk.StringVar(value=self.settings.feeding_window.get("start", "11:30"))
+        start_entry = ttk.Entry(self.feeding_window_frame, textvariable=self.feeding_start_var, width=8)
+        start_entry.grid(row=0, column=2, sticky=tk.W)
+        start_entry.bind('<Return>', self._on_feeding_window_change)
+        start_entry.bind('<FocusOut>', self._on_feeding_window_change)
+        
+        ttk.Label(self.feeding_window_frame, text="End:").grid(row=0, column=3, sticky=tk.W, padx=(10, 5))
+        self.feeding_end_var = tk.StringVar(value=self.settings.feeding_window.get("end", "19:30"))
+        end_entry = ttk.Entry(self.feeding_window_frame, textvariable=self.feeding_end_var, width=8)
+        end_entry.grid(row=0, column=4, sticky=tk.W)
+        end_entry.bind('<Return>', self._on_feeding_window_change)
+        end_entry.bind('<FocusOut>', self._on_feeding_window_change)
+        
+        # Info label for fasting
+        self.fasting_info_label = ttk.Label(fasting_frame, text="Light: Caloric items move to feeding window. Strict: Caloric items skipped.", 
+                                          font=("TkDefaultFont", 8), foreground="gray")
+        self.fasting_info_label.pack(anchor=tk.W, pady=(5, 0))
+        
+        # Initially hide fasting level and feeding window if fasting is off
+        # (Don't call _on_fasting_change yet - GUI isn't fully created)
+        
         # Pushbullet API Key
         pushbullet_frame = ttk.LabelFrame(settings_frame, text="Phone Notifications (Optional)", padding="5")
         pushbullet_frame.pack(fill=tk.X, pady=(0, 10))
@@ -687,6 +900,119 @@ class WellnessSchedulerApp:
         ttk.Button(settings_frame, text="Create Custom Schedule", command=self._create_custom_schedule).pack(pady=5)
         
         ttk.Button(settings_frame, text="Regenerate Schedule", command=self._regenerate_schedule).pack(pady=5)
+    
+    def _setup_fasting_controls(self):
+        """Initial setup of fasting controls visibility without regenerating schedule"""
+        is_fasting = self.fasting_var.get() == "yes"
+        
+        if is_fasting:
+            # Pack after the main fasting frame, before info label
+            self.fasting_level_frame.pack(fill=tk.X, pady=2, after=self.fasting_mode_frame)
+            self.feeding_window_frame.pack(fill=tk.X, pady=2, after=self.fasting_level_frame)
+            self.fasting_info_label.pack(anchor=tk.W, pady=(5, 0), after=self.feeding_window_frame)
+        else:
+            self.fasting_level_frame.pack_forget()
+            self.feeding_window_frame.pack_forget()
+            self.fasting_info_label.pack_forget()
+
+    def _on_fasting_change(self):
+        """Show/hide fasting level and feeding window controls based on fasting mode"""
+        is_fasting = self.fasting_var.get() == "yes"
+        
+        if is_fasting:
+            # Pack after the main fasting frame, before info label
+            self.fasting_level_frame.pack(fill=tk.X, pady=2, after=self.fasting_mode_frame)
+            self.feeding_window_frame.pack(fill=tk.X, pady=2, after=self.fasting_level_frame)
+            self.fasting_info_label.pack(anchor=tk.W, pady=(5, 0), after=self.feeding_window_frame)
+            
+            # Auto-switch meals to fasting mode: breakfast no, lunch no, dinner yes
+            self.breakfast_mode.set("no")
+            self.lunch_mode.set("no")
+            self.dinner_mode.set("yes")
+        else:
+            self.fasting_level_frame.pack_forget()
+            self.feeding_window_frame.pack_forget()
+            self.fasting_info_label.pack_forget()
+        
+        # Update settings and regenerate schedule immediately
+        self._update_settings_from_gui()
+        self.scheduler = SupplementScheduler(self.settings)
+        self._generate_schedule()
+    
+    def _on_feeding_window_change(self, event=None):
+        """Handle feeding window time changes and validate input"""
+        # Only process if fasting is enabled
+        if self.fasting_var.get() != "yes":
+            return
+        
+        try:
+            # Validate time formats
+            start_time = self.feeding_start_var.get().strip()
+            end_time = self.feeding_end_var.get().strip()
+            
+            # Basic time format validation (allows HH:MM or H:MM)
+            import re
+            time_pattern = r'^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$'
+            
+            if not re.match(time_pattern, start_time):
+                self._show_time_error("Invalid start time format. Use HH:MM (24-hour format)")
+                return
+                
+            if not re.match(time_pattern, end_time):
+                self._show_time_error("Invalid end time format. Use HH:MM (24-hour format)")
+                return
+            
+            # Parse times to validate they make sense
+            from datetime import datetime
+            start_dt = datetime.strptime(start_time, "%H:%M")
+            end_dt = datetime.strptime(end_time, "%H:%M")
+            
+            # Check if end is after start (handle same-day only for now)
+            if end_dt <= start_dt:
+                self._show_time_error("End time must be after start time")
+                return
+            
+            # Calculate feeding window duration
+            duration_minutes = (end_dt.hour - start_dt.hour) * 60 + (end_dt.minute - start_dt.minute)
+            if duration_minutes < 60:
+                self._show_time_error("Feeding window must be at least 1 hour")
+                return
+            
+            # If we get here, times are valid - update settings and regenerate schedule
+            self._update_settings_from_gui()
+            self.scheduler = SupplementScheduler(self.settings)
+            self._generate_schedule()
+            
+            # Show success feedback
+            duration_hours = duration_minutes / 60
+            self._show_time_success(f"Feeding window updated: {duration_hours:.1f} hour window")
+            
+        except ValueError:
+            self._show_time_error("Invalid time format. Use HH:MM (24-hour format)")
+        except Exception as e:
+            self._show_time_error(f"Error updating feeding window: {str(e)}")
+    
+    def _show_time_error(self, message):
+        """Show temporary error message for time validation"""
+        original_text = self.fasting_info_label.cget("text")
+        original_fg = self.fasting_info_label.cget("foreground")
+        
+        # Show error message in red
+        self.fasting_info_label.config(text=f"⚠️ {message}", foreground="red")
+        
+        # Restore original message after 3 seconds
+        self.root.after(3000, lambda: self.fasting_info_label.config(text=original_text, foreground=original_fg))
+    
+    def _show_time_success(self, message):
+        """Show temporary success message for time validation"""
+        original_text = self.fasting_info_label.cget("text")
+        original_fg = self.fasting_info_label.cget("foreground")
+        
+        # Show success message in green
+        self.fasting_info_label.config(text=f"✅ {message}", foreground="green")
+        
+        # Restore original message after 2 seconds
+        self.root.after(2000, lambda: self.fasting_info_label.config(text=original_text, foreground=original_fg))
     
     def _create_schedule_panel(self, parent):
         """Create the schedule display panel"""
@@ -1570,6 +1896,14 @@ class WellnessSchedulerApp:
         # Update optional items
         for item, var in self.optional_vars.items():
             self.settings.optional_items[item] = var.get()
+        
+        # Update fasting settings
+        self.settings.fasting = self.fasting_var.get()
+        self.settings.fasting_level = self.fasting_level_var.get()
+        self.settings.feeding_window = {
+            "start": self.feeding_start_var.get(),
+            "end": self.feeding_end_var.get()
+        }
     
     def _load_schedule(self):
         """Load existing schedule from file"""
