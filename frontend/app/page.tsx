@@ -390,16 +390,6 @@ export default function Home() {
                 </div>
             )}
 
-            {/* Processing Overlay */}
-            {processing && (
-                <div className="fixed inset-0 bg-black/20 z-[20000] flex items-center justify-center backdrop-blur-sm">
-                    <div className="bg-white p-4 rounded-xl shadow-xl flex items-center gap-3">
-                        <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                        <span className="font-medium text-gray-700">Processing...</span>
-                    </div>
-                </div>
-            )}
-
             {/* Settings Panel */}
             <SettingsPanel
                 isOpen={isSettingsOpen}
