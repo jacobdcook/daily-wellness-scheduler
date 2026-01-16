@@ -205,13 +205,9 @@ A comprehensive web-based application for managing your daily wellness routine, 
 
 The app includes a local food database for nutrition tracking. The large food database files are **not included** in the git repository to keep it lightweight.
 
-### Downloading the Food Database (Optional)
+**📖 For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
 
-If you want to use the food photo recognition and barcode scanning features, you can download the food database:
-
-**Option 1: Download OpenFoodFacts Database (Recommended)**
-
-The app includes a script to download the OpenFoodFacts database:
+Quick Start:
 
 ```bash
 # Windows
@@ -223,13 +219,7 @@ python3 backend/download_openfoodfacts.py
 
 This will download the latest OpenFoodFacts product database to `data/openfoodfacts_products.jsonl.gz`.
 
-**Option 2: Manual Download**
-
-1. Visit [OpenFoodFacts](https://world.openfoodfacts.org/data)
-2. Download the products JSONL file
-3. Place it in the `data/` directory as `openfoodfacts_products.jsonl.gz`
-
-**Note:** The food database is large (several GB compressed). The app will work without it, but food barcode scanning and photo recognition will be limited.
+**Note:** The food database is large (several GB compressed). The app will work without it, but food barcode scanning and photo recognition will be limited. See [SETUP_GUIDE.md](SETUP_GUIDE.md) for full instructions.
 
 ---
 
@@ -485,12 +475,19 @@ The backend is configured to allow CORS from all origins. If you still see CORS 
 
 ---
 
+## Additional Guides
+
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed guide for downloading and setting up the food database
+- **[BACKUP_MIGRATION_GUIDE.md](BACKUP_MIGRATION_GUIDE.md)** - Complete guide for backing up data and migrating from Windows to Linux
+
 ## Support
 
 For issues, questions, or contributions:
 - Check the project documentation in the various `.md` files
 - Review the backend and frontend code comments
 - Ensure all dependencies are installed correctly
+- See [SETUP_GUIDE.md](SETUP_GUIDE.md) for food database issues
+- See [BACKUP_MIGRATION_GUIDE.md](BACKUP_MIGRATION_GUIDE.md) for migration help
 
 ---
 
