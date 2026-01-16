@@ -1,0 +1,51 @@
+{
+  "custom_items": [
+    {
+      "id": "8d28fbae-e19a-4caf-819e-1db59eef1782",
+      "name": "Soccer",
+      "time": "15:00",
+      "dose": "",
+      "notes": "Added by AI",
+      "enabled": true,
+      "days": [
+        "Tuesday"
+      ]
+    },
+    {
+      "id": "24837be9-6ce4-40bc-afd6-efececc44890",
+      "name": "soccer2",
+      "time": "17:00",
+      "dose": "",
+      "notes": "Added by AI",
+      "enabled": true,
+      "days": [
+        "Thursday"
+      ]
+    },
+    {
+      "id": "478b2b19-6628-4696-821d-e7068704e246",
+      "name": "breathwork",
+      "time": "08:00",
+      "dose": "",
+      "notes": "Added by AI",
+      "enabled": true,
+      "days": [
+        "Wednesday"
+      ]
+    },
+    {
+      "id": "e9ae2f72-cf0b-4555-96e9-d29311f69bbb",
+      "name": "new breathwork",
+      "time": "08:00",
+      "dose": "",
+      "notes": "Added by AI",
+      "enabled": true,
+      "days": [
+        "Monday",
+        "Wednesday",
+        "Friday",
+        "Sunday"
+      ]
+    }
+  ]
+}

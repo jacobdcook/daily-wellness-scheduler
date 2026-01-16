@@ -1,0 +1,314 @@
+{
+  "interactions": [
+    {
+      "supplement1": "Magnesium",
+      "supplement2": "Calcium",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Magnesium and calcium compete for absorption. Taking them together can reduce bioavailability of both.",
+      "recommendation": "Space at least 2-3 hours apart. Take magnesium in evening, calcium in morning.",
+      "spacing_hours": 3,
+      "scientific_evidence": "Both minerals use similar transport mechanisms in the gut, leading to competitive inhibition."
+    },
+    {
+      "supplement1": "Iron",
+      "supplement2": "Calcium",
+      "type": "absorption_conflict",
+      "severity": "high",
+      "description": "Calcium significantly reduces iron absorption when taken together.",
+      "recommendation": "Space at least 2 hours apart. Take iron on empty stomach, calcium with meals.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Calcium inhibits iron absorption by up to 50% when taken simultaneously."
+    },
+    {
+      "supplement1": "Iron",
+      "supplement2": "Zinc",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Iron and zinc compete for absorption in the intestines.",
+      "recommendation": "Space at least 2 hours apart. Consider alternating days if high doses.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Both minerals use the DMT1 transporter, causing competitive inhibition."
+    },
+    {
+      "supplement1": "Zinc",
+      "supplement2": "Copper",
+      "type": "absorption_conflict",
+      "severity": "high",
+      "description": "High-dose zinc supplementation can cause copper deficiency over time.",
+      "recommendation": "If taking >30mg zinc daily, add 2mg copper. Space zinc and copper by 2 hours.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Zinc induces metallothionein which binds copper, reducing absorption."
+    },
+    {
+      "supplement1": "Calcium",
+      "supplement2": "Zinc",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Calcium can reduce zinc absorption when taken together.",
+      "recommendation": "Space at least 2 hours apart.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Calcium interferes with zinc absorption in the small intestine."
+    },
+    {
+      "supplement1": "Vitamin D",
+      "supplement2": "Magnesium",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "Magnesium is required for vitamin D activation. Taking together enhances benefits.",
+      "recommendation": "Can be taken together. Magnesium supports vitamin D metabolism.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Magnesium is a cofactor for enzymes that activate vitamin D."
+    },
+    {
+      "supplement1": "Vitamin D",
+      "supplement2": "Calcium",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "Vitamin D enhances calcium absorption. Taking together is beneficial.",
+      "recommendation": "Can be taken together. Vitamin D improves calcium bioavailability.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Vitamin D increases calcium absorption in the intestines."
+    },
+    {
+      "supplement1": "Vitamin C",
+      "supplement2": "Iron",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "Vitamin C enhances iron absorption, especially non-heme iron.",
+      "recommendation": "Can be taken together. Vitamin C improves iron bioavailability.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Vitamin C reduces ferric iron to ferrous form, improving absorption."
+    },
+    {
+      "supplement1": "Melatonin",
+      "supplement2": "Magnesium",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "Magnesium and melatonin work together to promote relaxation and sleep.",
+      "recommendation": "Can be taken together. Both support sleep quality.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Magnesium enhances melatonin's sleep-promoting effects."
+    },
+    {
+      "supplement1": "Omega-3",
+      "supplement2": "Vitamin E",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "Vitamin E protects omega-3 fatty acids from oxidation.",
+      "recommendation": "Can be taken together. Vitamin E preserves omega-3 integrity.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Vitamin E acts as an antioxidant, preventing omega-3 oxidation."
+    },
+    {
+      "supplement1": "Probiotic",
+      "supplement2": "Antibiotic",
+      "type": "contraindication",
+      "severity": "high",
+      "description": "Antibiotics can kill probiotics if taken simultaneously.",
+      "recommendation": "Space at least 2-3 hours apart. Take probiotic 2-3 hours after antibiotic.",
+      "spacing_hours": 3,
+      "scientific_evidence": "Antibiotics are designed to kill bacteria, including beneficial probiotics."
+    },
+    {
+      "supplement1": "Zinc",
+      "supplement2": "Antibiotic",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Zinc can reduce antibiotic absorption, particularly tetracyclines and quinolones.",
+      "recommendation": "Space at least 2 hours apart. Take antibiotic first, then zinc 2+ hours later.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Zinc chelates with certain antibiotics, reducing their bioavailability."
+    },
+    {
+      "supplement1": "Calcium",
+      "supplement2": "Antibiotic",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Calcium can reduce absorption of certain antibiotics (tetracyclines, quinolones).",
+      "recommendation": "Space at least 2 hours apart. Take antibiotic first, then calcium 2+ hours later.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Calcium chelates with tetracycline and quinolone antibiotics."
+    },
+    {
+      "supplement1": "Iron",
+      "supplement2": "Antibiotic",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Iron can reduce absorption of certain antibiotics (tetracyclines, quinolones).",
+      "recommendation": "Space at least 2 hours apart. Take antibiotic first, then iron 2+ hours later.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Iron chelates with tetracycline and quinolone antibiotics."
+    },
+    {
+      "supplement1": "Fiber",
+      "supplement2": "Any Supplement",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "High-fiber supplements can bind to and reduce absorption of other supplements.",
+      "recommendation": "Space at least 1-2 hours apart from other supplements.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Fiber can bind to minerals and other compounds, reducing bioavailability."
+    },
+    {
+      "supplement1": "Caffeine",
+      "supplement2": "Iron",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Caffeine (coffee, tea) can reduce iron absorption by up to 40%.",
+      "recommendation": "Space at least 1 hour apart. Avoid taking iron with coffee or tea.",
+      "spacing_hours": 1,
+      "scientific_evidence": "Tannins in coffee and tea bind to iron, reducing absorption."
+    },
+    {
+      "supplement1": "Calcium",
+      "supplement2": "Thyroid Medication",
+      "type": "absorption_conflict",
+      "severity": "high",
+      "description": "Calcium can significantly reduce absorption of thyroid medications (levothyroxine).",
+      "recommendation": "Space at least 4 hours apart. Take thyroid medication on empty stomach, calcium later.",
+      "spacing_hours": 4,
+      "scientific_evidence": "Calcium binds to levothyroxine, reducing absorption by up to 40%."
+    },
+    {
+      "supplement1": "Iron",
+      "supplement2": "Thyroid Medication",
+      "type": "absorption_conflict",
+      "severity": "high",
+      "description": "Iron can reduce absorption of thyroid medications (levothyroxine).",
+      "recommendation": "Space at least 4 hours apart. Take thyroid medication on empty stomach, iron later.",
+      "spacing_hours": 4,
+      "scientific_evidence": "Iron binds to levothyroxine, reducing absorption significantly."
+    },
+    {
+      "supplement1": "B Vitamins",
+      "supplement2": "Vitamin C",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "B vitamins and vitamin C work together in energy metabolism.",
+      "recommendation": "Can be taken together. They complement each other in cellular processes.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Both are water-soluble and work together in metabolic pathways."
+    },
+    {
+      "supplement1": "Magnesium",
+      "supplement2": "B Vitamins",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "Magnesium is a cofactor for many B vitamin-dependent enzymes.",
+      "recommendation": "Can be taken together. Magnesium supports B vitamin function.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Magnesium is required for activation of several B vitamin-dependent enzymes."
+    },
+    {
+      "supplement1": "Zinc",
+      "supplement2": "Vitamin A",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "Zinc is required for vitamin A metabolism and transport.",
+      "recommendation": "Can be taken together. Zinc supports vitamin A function.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Zinc is necessary for retinol-binding protein synthesis."
+    },
+    {
+      "supplement1": "PepZin GI",
+      "supplement2": "Iron",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Zinc (in PepZin GI) can reduce iron absorption when taken together.",
+      "recommendation": "Space at least 2 hours apart. Take iron on empty stomach, PepZin GI with meals.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Zinc and iron compete for absorption via DMT1 transporter."
+    },
+    {
+      "supplement1": "PepZin GI",
+      "supplement2": "Calcium",
+      "type": "absorption_conflict",
+      "severity": "moderate",
+      "description": "Zinc (in PepZin GI) and calcium can interfere with each other's absorption.",
+      "recommendation": "Space at least 2 hours apart.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Calcium can reduce zinc absorption in the intestines."
+    },
+    {
+      "supplement1": "DGL Plus",
+      "supplement2": "Any Acidic Supplement",
+      "type": "absorption_conflict",
+      "severity": "low",
+      "description": "DGL (Deglycyrrhizinated Licorice) works best in a neutral pH environment.",
+      "recommendation": "Space at least 30 minutes apart from acidic supplements or vitamin C.",
+      "spacing_hours": 0.5,
+      "scientific_evidence": "DGL's protective effects are optimal at neutral pH."
+    },
+    {
+      "supplement1": "L-Glutamine",
+      "supplement2": "Protein",
+      "type": "synergistic",
+      "severity": "low",
+      "description": "L-Glutamine is an amino acid that works well with protein intake.",
+      "recommendation": "Can be taken together. Both support muscle and gut health.",
+      "spacing_hours": 0,
+      "scientific_evidence": "L-Glutamine is a conditionally essential amino acid."
+    },
+    {
+      "supplement1": "Aloe Vera",
+      "supplement2": "Any Medication",
+      "type": "contraindication",
+      "severity": "moderate",
+      "description": "Aloe vera may interact with certain medications. Consult healthcare provider.",
+      "recommendation": "Space at least 2 hours apart from medications. Consult doctor if on prescription meds.",
+      "spacing_hours": 2,
+      "scientific_evidence": "Aloe vera can affect drug metabolism and absorption."
+    },
+    {
+      "supplement1": "Melatonin",
+      "supplement2": "Blood Thinners",
+      "type": "contraindication",
+      "severity": "high",
+      "description": "Melatonin may increase bleeding risk when combined with blood thinners.",
+      "recommendation": "Consult healthcare provider before combining. Monitor for increased bleeding.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Melatonin may have anticoagulant effects."
+    },
+    {
+      "supplement1": "Omega-3",
+      "supplement2": "Blood Thinners",
+      "type": "contraindication",
+      "severity": "moderate",
+      "description": "High-dose omega-3 may increase bleeding risk when combined with blood thinners.",
+      "recommendation": "Consult healthcare provider. Monitor for increased bleeding. Consider lower dose.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Omega-3 fatty acids have mild anticoagulant effects."
+    },
+    {
+      "supplement1": "St. John's Wort",
+      "supplement2": "Any Medication",
+      "type": "contraindication",
+      "severity": "high",
+      "description": "St. John's Wort can interact with many medications by affecting liver enzymes.",
+      "recommendation": "Consult healthcare provider. Can reduce effectiveness of many prescription drugs.",
+      "spacing_hours": 0,
+      "scientific_evidence": "St. John's Wort induces CYP450 enzymes, affecting drug metabolism."
+    },
+    {
+      "supplement1": "Grapefruit",
+      "supplement2": "Any Medication",
+      "type": "contraindication",
+      "severity": "high",
+      "description": "Grapefruit can interact with many medications by inhibiting liver enzymes.",
+      "recommendation": "Avoid grapefruit with medications. Consult healthcare provider.",
+      "spacing_hours": 0,
+      "scientific_evidence": "Grapefruit inhibits CYP3A4, affecting drug metabolism."
+    }
+  ],
+  "supplement_aliases": {
+    "PepZin GI": ["Zinc", "Zinc-Carnosine", "Zinc Carnosine"],
+    "Magnesium Glycinate": ["Magnesium", "Mg"],
+    "Omega-3 + D3/K2": ["Omega-3", "Fish Oil", "D3", "Vitamin D3", "K2", "Vitamin K2"],
+    "DGL Plus": ["DGL", "Deglycyrrhizinated Licorice"],
+    "L-Glutamine": ["Glutamine", "L-Glutamine"],
+    "Aloe Vera Juice": ["Aloe Vera", "Aloe"],
+    "Probiotic": ["Probiotics", "Probiotic Supplement"]
+  }
+}
+

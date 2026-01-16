@@ -1,0 +1,20 @@
+{
+  "2025-12-02": [
+    {
+      "id": "6b4b3360-b242-41f9-807f-996f95e2c8fc",
+      "item": {
+        "name": "Soccer",
+        "dose": "",
+        "timing_rule": "workout_window",
+        "notes": "Added by AI",
+        "window_minutes": 0,
+        "anchor": "custom",
+        "offset_minutes": 0,
+        "conflicts": [],
+        "enabled": true,
+        "optional": false,
+        "caloric": false,
+        "fasting_action": "allow",
+        "fasting_notes": ""
+      },
+      "scheduled_time": 

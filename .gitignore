@@ -70,3 +70,21 @@ Thumbs.db
 *.tmp
 *.temp
 *.log
+
+# User data and backups - never commit personal data
+data/
+backups/
+
+# Node modules
+node_modules/
+
+# Large database files - should be downloaded separately
+*.jsonl.gz
+openfoodfacts-products.jsonl.gz
+*.gz.progress
+
+# Cursor IDE files
+.cursor/
+
+# Large data files
+openfoodfacts-products.jsonl.gz

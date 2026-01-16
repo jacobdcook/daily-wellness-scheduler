@@ -26,7 +26,7 @@ def main():
     npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
     
     frontend_process = subprocess.Popen(
-        [npm_cmd, "run", "dev"],
+        [npm_cmd, "run", "dev", "--", "--webpack"],
         cwd=frontend_cwd,
         shell=True
     )

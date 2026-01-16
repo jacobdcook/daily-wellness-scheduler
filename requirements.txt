@@ -1,4 +1,15 @@
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
 python-docx>=0.8.11
+python-dotenv>=1.0.0  # Optional: For loading .env files with API keys
+reportlab>=4.0.0  # For PDF export
+python-dateutil>=2.8.2  # For recurring pattern calculations
+pywebpush>=1.14.0  # For sending Web Push notifications (Phase 29)
+requests>=2.31.0  # For nutrition API calls (Phase 32)
+python-multipart>=0.0.6  # For file uploads (photo recognition)
+pyzbar>=0.1.9  # For barcode detection in images
+Pillow>=10.0.0  # For image processing (required by pyzbar)
 
 
 

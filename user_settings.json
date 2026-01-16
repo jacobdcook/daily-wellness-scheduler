@@ -1,0 +1,142 @@
+{
+    "wake_time": "07:30",
+    "bedtime": "22:00",
+    "dinner_time": "18:30",
+    "breakfast_mode": "yes",
+    "lunch_mode": "yes",
+    "dinner_mode": "yes",
+    "breakfast_days": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+    ],
+    "study_start": "09:30",
+    "study_end": "17:30",
+    "workout_days": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    ],
+    "workout_time": "",
+    "vaping_window": "",
+    "electrolyte_intensity": "light",
+    "timezone": "America/Los_Angeles",
+    "optional_items": {
+        "slippery_elm": true,
+        "l_glutamine": true,
+        "collagen": true,
+        "melatonin": true
+    },
+    "fasting": "no",
+    "fasting_level": "light",
+    "feeding_window": {
+        "start": "11:30",
+        "end": "19:30"
+    },
+    "custom_items": [
+        {
+            "id": "custom_1764643609480",
+            "name": "pokemon",
+            "time": "01:00",
+            "dose": "1",
+            "notes": "Unable to determine caloric content. Please verify manually - if it contains calories, it will break a fast.",
+            "enabled": true,
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        }
+    ],
+    "inventory": {
+        "Probiotic": {
+            "current_stock": -2,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "Collagen Peptides": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "Electrolyte Mix": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "L-Glutamine": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "DGL Plus": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "PepZin GI": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "Aloe Vera Juice": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "Omega-3 + D3/K2": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "Slippery Elm Tea": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "Magnesium Glycinate": {
+            "current_stock": 0,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        },
+        "Melatonin": {
+            "current_stock": 5,
+            "low_stock_threshold": 10,
+            "refill_size": 30,
+            "unit": "units",
+            "last_restocked": null
+        }
+    }
+}
