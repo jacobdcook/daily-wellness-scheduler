@@ -2,6 +2,33 @@
 
 This guide explains how to backup all your data when transferring from Windows to Linux so you don't lose any users, schedules, or personal information.
 
+## TLDR - Quick Backup & Migration
+
+**Windows (Before Migration):**
+```powershell
+# Option 1: Use the backup script (easiest)
+.\backup_data.ps1
+
+# Option 2: Manual backup
+xcopy /E /I /Y data backup_data
+copy users.json backup_users.json
+```
+
+**What to Backup:**
+- ✅ `data/` directory - **CRITICAL** (all user schedules, settings, progress)
+- ✅ `users.json` - **CRITICAL** (user accounts)
+- ⚠️ `backups/` directory - Optional (historical backups)
+
+**Linux (After Migration):**
+```bash
+# Restore data
+cp -r backup_data_*/data ./
+cp backup_data_*/users.json ./
+chmod -R 755 data/
+```
+
+**That's it!** Your users and all their data will be preserved. See below for detailed instructions.
+
 ## What Needs to be Backed Up
 
 ### Critical Files (MUST BACKUP)

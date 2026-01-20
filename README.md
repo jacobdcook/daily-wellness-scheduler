@@ -477,6 +477,7 @@ The backend is configured to allow CORS from all origins. If you still see CORS 
 
 ## Additional Guides
 
+- **[LINUX_QUICKSTART.md](LINUX_QUICKSTART.md)** - ⭐ **Quick start guide for Linux setup and cloudflared hosting**
 - **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed guide for downloading and setting up the food database
 - **[BACKUP_MIGRATION_GUIDE.md](BACKUP_MIGRATION_GUIDE.md)** - Complete guide for backing up data and migrating from Windows to Linux
 
@@ -494,6 +495,14 @@ For issues, questions, or contributions:
 ## License
 
 Personal use only.
+
+---
+
+## Quick Links
+
+- **[LINUX_QUICKSTART.md](LINUX_QUICKSTART.md)** - Get started on Linux quickly
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Food database setup
+- **[BACKUP_MIGRATION_GUIDE.md](BACKUP_MIGRATION_GUIDE.md)** - Backup and migration help
 
 ---
 
